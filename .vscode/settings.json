@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "settings.c": "cpp",
+        "lv_img_map.c": "cpp",
+        "lv_img_calendar.c": "cpp",
+        "lv_img_settings.c": "cpp",
+        "lv_img_about.c": "cpp",
+        "lv_img_audio.c": "cpp",
+        "lv_img_sketch.c": "cpp",
+        "lv_img_calculator.c": "cpp"
+    }
+}

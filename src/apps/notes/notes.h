@@ -167,7 +167,7 @@ static void back_button_event_cb(lv_event_t* e) {
         // Save button with icon similar to settings modal
         task_save_btn = lv_btn_create(task_modal_cont);
         lv_obj_set_size(task_save_btn, 40, 40);
-        lv_obj_align(task_save_btn, LV_ALIGN_BOTTOM_MID, 0, 5);
+        lv_obj_align(task_save_btn, LV_ALIGN_BOTTOM_MID, -25, 5);
         lv_obj_set_style_radius(task_save_btn, LV_RADIUS_CIRCLE, 0);
         lv_obj_set_style_bg_opa(task_save_btn, LV_OPA_50, 0);
         lv_obj_set_style_bg_color(task_save_btn, lv_color_hex(0x1A5FB4), 0);
@@ -181,7 +181,7 @@ static void back_button_event_cb(lv_event_t* e) {
         {
             task_delete_btn = lv_btn_create(task_modal_cont);
             lv_obj_set_size(task_delete_btn, 40, 40);
-            lv_obj_align(task_delete_btn, LV_ALIGN_BOTTOM_MID, 50, 5);
+            lv_obj_align(task_delete_btn, LV_ALIGN_BOTTOM_MID, 25, 5);
             lv_obj_set_style_radius(task_delete_btn, LV_RADIUS_CIRCLE, 0);
             lv_obj_set_style_bg_opa(task_delete_btn, LV_OPA_50, 0);
             lv_obj_set_style_bg_color(task_delete_btn, lv_color_hex(0xB00020), 0);

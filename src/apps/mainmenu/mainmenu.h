@@ -237,6 +237,8 @@ inline void launch_selected_app() {
         AppManager::show_app(AppManager::APP_WEATHER);
     } else if (strcmp(selected_app_name, "Notes") == 0) {
         AppManager::show_app(AppManager::APP_NOTES);
+    } else if (strcmp(selected_app_name, "Calendar") == 0) {
+        AppManager::show_app(AppManager::APP_CALENDAR);
     }
 }
 

@@ -23,7 +23,8 @@ enum App {
     APP_CALCULATOR,
     APP_SETTINGS,
     APP_WEATHER,
-    APP_NOTES
+    APP_NOTES,
+    APP_CALENDAR
     // Adicione outros apps aqui no futuro
 };
 
@@ -40,7 +41,8 @@ void handle();
 #include "calculator/calculator.h"
 #include "settings/settings.h"
 #include "weather/weather.h"
-#include "notes/notes.h" // Exemplo para futuros apps
+#include "notes/notes.h"
+#include "calendar/calendar.h"
 //#include "sketch/sketch.h" // Exemplo para futuros apps
 
 // --- AppManager Implementation ---
@@ -57,6 +59,7 @@ inline void init() {
     Settings::init();
     Weather::init();
     Notes::init();
+    Calendar::init();
     // Mostra o menu principal ao iniciar
     show_app(APP_MAIN_MENU);
 }
@@ -79,6 +82,9 @@ inline void show_app(App app_to_show) {
         case APP_NOTES:
             Notes::show();
             break;
+        case APP_CALENDAR:
+            Calendar::show();
+            break;
     }
 }
 
@@ -89,6 +95,7 @@ inline void handle() {
     else if (current_app == APP_SETTINGS) Settings::handle();
     else if (current_app == APP_WEATHER) Weather::handle();
     else if (current_app == APP_NOTES) Notes::handle();
+    else if (current_app == APP_CALENDAR) Calendar::handle();
 }
 
 } // namespace AppManager

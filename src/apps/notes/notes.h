@@ -208,7 +208,7 @@ static void back_button_event_cb(lv_event_t* e) {
      static void create_task(const char *title)
      {
          HTTPClient http;
-         http.begin(GOOGLE_SCRIPT_URL);
+         http.begin(GOOGLE_SCRIPT_URL_TASKS);
          http.addHeader("Content-Type", "application/json");
          String payload = "{\"title\":\"" + String(title) + "\"}";
          int http_code = http.POST(payload);
@@ -222,7 +222,7 @@ static void back_button_event_cb(lv_event_t* e) {
      static void update_task(const char *id, const char *title)
      {
          HTTPClient http;
-         http.begin(GOOGLE_SCRIPT_URL);
+         http.begin(GOOGLE_SCRIPT_URL_TASKS);
          http.addHeader("Content-Type", "application/json");
          String postPayload = "{\"id\":\"" + String(id) + "\", \"title\":\"" + String(title) + "\", \"update\": true}";
          int http_code = http.POST(postPayload);
@@ -236,7 +236,7 @@ static void back_button_event_cb(lv_event_t* e) {
      static void delete_task(const char *id)
      {
          HTTPClient http;
-         http.begin(GOOGLE_SCRIPT_URL);
+         http.begin(GOOGLE_SCRIPT_URL_TASKS);
          http.addHeader("Content-Type", "application/json");
         // Use POST with delete flag due to Google Script limitations
         String postPayload = "{\"id\":\"" + String(id) + "\", \"delete\": true}";
@@ -387,7 +387,7 @@ static void back_button_event_cb(lv_event_t* e) {
     static void fetch_tasks_task(void *parameter)
     {
         HTTPClient http;
-        String url = GOOGLE_SCRIPT_URL;
+        String url = GOOGLE_SCRIPT_URL_TASKS;
 
         http.begin(url);
         http.setConnectTimeout(5000);

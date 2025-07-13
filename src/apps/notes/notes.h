@@ -7,7 +7,7 @@
 #include <ArduinoJson.h>
 #include "secrets.h"
 
-// Incluído a partir de apps.h, que já define o AppManager.
+// Included from apps.h, which already defines the AppManager.
 
 namespace Notes
 {
@@ -30,10 +30,10 @@ namespace Notes
     static lv_obj_t *tasks_list = nullptr;
     static lv_obj_t *status_label = nullptr;
 
-    // --- Variáveis para operação assíncrona ---
+    // --- Variables for asynchronous operation ---
     static TaskHandle_t fetch_task_handle = NULL;
     static SemaphoreHandle_t data_mutex = NULL;
-    // Usamos um documento dinâmico para evitar alocações de memória repetidas no loop.
+    // We use a dynamic document to avoid repeated memory allocations in the loop.
     static JsonDocument tasks_doc;
     static volatile bool data_ready_for_ui = false;
     static String fetch_status_message = "";
@@ -55,7 +55,7 @@ namespace Notes
     static void update_task(const char *id, const char *title);
     static void delete_task(const char *id);
     /**
- * @brief Callback para o botão de voltar. Retorna ao menu principal.
+ * @brief Callback for the back button. Returns to the main menu.
  */
 static void back_button_event_cb(lv_event_t* e) {
     AppManager::show_app(AppManager::APP_MAIN_MENU);
@@ -283,17 +283,17 @@ static void back_button_event_cb(lv_event_t* e) {
     }
 
     /**
-     * @brief Callback para atualizar a lista de tarefas ao clicar na tela.
+     * @brief Callback to refresh the task list when clicking the screen.
      */
     static void refresh_event_cb(lv_event_t *e)
     {
-        // A função fetch_tasks já verifica a conexão e atualiza o status
+        // The fetch_tasks function already checks the connection and updates the status
         fetch_tasks();
     }
 
     /**
-     * @brief Atualiza a UI com a lista de tarefas recebida.
-     * @param tasks Array JSON com as tarefas.
+     * @brief Updates the UI with the received task list.
+     * @param tasks JSON array with the tasks.
      */
     static void update_tasks_ui(JsonVariant doc)
     {
@@ -308,8 +308,8 @@ static void back_button_event_cb(lv_event_t* e) {
         auto&& tasks_var = doc["items"];
         if (!tasks_var.is<JsonArray>())
         {
-            lv_list_add_text(tasks_list, "Nenhuma tarefa encontrada.");
-            lv_label_set_text(status_label, "Nenhuma tarefa.");
+            lv_list_add_text(tasks_list, "No tasks found.");
+            lv_label_set_text(status_label, "No tasks.");
             return;
         }
 
@@ -317,15 +317,15 @@ static void back_button_event_cb(lv_event_t* e) {
 
         if (tasks.size() == 0)
         {
-            lv_list_add_text(tasks_list, "Nenhuma tarefa encontrada.");
-            lv_label_set_text(status_label, "Nenhuma tarefa.");
+            lv_list_add_text(tasks_list, "No tasks found.");
+            lv_label_set_text(status_label, "No tasks.");
             return;
         }
 
         for (int i = 0; i < (int)tasks.size(); i++)
         {
             JsonObject task = tasks[i].as<JsonObject>();
-            String title = task["title"] | "Sem título";
+            String title = task["title"] | "Untitled";
             title = Utils::sanitizeString(title);
             lv_obj_t *btn = lv_list_add_btn(tasks_list, NULL, title.c_str());
             lv_obj_set_user_data(btn, (void *)(intptr_t)i);
@@ -343,8 +343,8 @@ static void back_button_event_cb(lv_event_t* e) {
     }
 
     /**
-     * @brief Define uma mensagem de erro para ser exibida na UI.
-     * Esta função é segura para ser chamada de qualquer tarefa.
+     * @brief Sets an error message to be displayed in the UI.
+     * This function is safe to be called from any task.
      */
     static void set_fetch_error_status(const String &message)
     {
@@ -358,8 +358,8 @@ static void back_button_event_cb(lv_event_t* e) {
     }
 
     /**
-     * @brief Processa o payload JSON e armazena para a UI.
-     * Esta função é segura para ser chamada de qualquer tarefa.
+     * @brief Processes the JSON payload and stores it for the UI.
+     * This function is safe to be called from any task.
      */
     static void process_and_store_payload(const String &payload)
     {
@@ -370,11 +370,11 @@ static void back_button_event_cb(lv_event_t* e) {
             if (error)
             {
                 LV_LOG_ERROR("deserializeJson() failed: %s", error.c_str());
-                fetch_status_message = "Erro ao analisar JSON.";
+                fetch_status_message = "Error parsing JSON.";
             }
             else
             {
-                fetch_status_message = ""; // Sucesso
+                fetch_status_message = ""; // Success
             }
             data_ready_for_ui = true;
             xSemaphoreGive(data_mutex);
@@ -382,7 +382,7 @@ static void back_button_event_cb(lv_event_t* e) {
     }
 
     /**
-     * @brief Tarefa que executa em segundo plano para buscar as tarefas da rede.
+     * @brief Background task to fetch tasks from the network.
      */
     static void fetch_tasks_task(void *parameter)
     {
@@ -393,7 +393,7 @@ static void back_button_event_cb(lv_event_t* e) {
         http.setConnectTimeout(5000);
         http.setTimeout(5000);
 
-        // É necessário informar ao cliente quais cabeçalhos coletar.
+        // It is necessary to inform the client which headers to collect.
         const char *headerKeys[] = {"location"};
         http.collectHeaders(headerKeys, 1);
 
@@ -402,60 +402,60 @@ static void back_button_event_cb(lv_event_t* e) {
         if (http_code == HTTP_CODE_MOVED_PERMANENTLY || http_code == HTTP_CODE_FOUND)
         {
             url = http.header("location");
-            LV_LOG_USER("Redirecionado para: %s", url.c_str());
-            http.end(); // Finaliza a primeira requisição
+            LV_LOG_USER("Redirected to: %s", url.c_str());
+            http.end(); // Ends the first request
 
             if (url.length() > 0)
             {
-                http.begin(url); // Inicia a segunda requisição
+                http.begin(url); // Starts the second request
                 http.addHeader("User-Agent", "Mozilla/5.0 (compatible; ESP32)");
                 http_code = http.GET();
-                LV_LOG_USER("Segundo GET HTTP code: %d", http_code);
+                LV_LOG_USER("Second GET HTTP code: %d", http_code);
             }
         }
 
         if (http_code == HTTP_CODE_OK)
         {
             String payload = http.getString();
-            LV_LOG_USER("Payload recebido: %s", payload.c_str());
+            LV_LOG_USER("Payload received: %s", payload.c_str());
             process_and_store_payload(payload);
         }
         else
         {
-            String error_msg = "Erro HTTP: " + String(http_code);
-            LV_LOG_ERROR("HTTP GET falhou, código: %d, mensagem: %s", http_code, http.errorToString(http_code).c_str());
+            String error_msg = "HTTP Error: " + String(http_code);
+            LV_LOG_ERROR("HTTP GET failed, code: %d, message: %s", http_code, http.errorToString(http_code).c_str());
             set_fetch_error_status(error_msg);
         }
 
         http.end();
 
-        // A tarefa concluiu, então limpamos o handle e deletamos a tarefa.
+        // The task finished, so we clear the handle and delete the task.
         fetch_task_handle = NULL;
         vTaskDelete(NULL);
     }
 
     /**
-     * @brief Inicia o processo de busca de tarefas em uma tarefa de segundo plano.
+     * @brief Starts the task fetching process in a background task.
      */
     static void fetch_tasks()
     {
         if (fetch_task_handle != NULL)
         {
-            LV_LOG_USER("Busca de tarefas já em andamento.");
+            LV_LOG_USER("Task fetch already in progress.");
             return;
         }
 
         if (WiFi.status() == WL_CONNECTED)
         {
-            lv_label_set_text(status_label, "Atualizando tarefas...");
-            // Cria a tarefa que será executada no outro núcleo do ESP32
+            lv_label_set_text(status_label, "Updating tasks...");
+            // Creates the task that will run on the other ESP32 core
             xTaskCreate(
-                fetch_tasks_task,   /* Função que implementa a tarefa */
-                "FetchTasks",       /* Nome da tarefa */
-                8192,               /* Tamanho da pilha em palavras */
-                NULL,               /* Parâmetro de entrada da tarefa */
-                1,                  /* Prioridade da tarefa */
-                &fetch_task_handle  /* Handle da tarefa para controle */
+                fetch_tasks_task,   /* Function that implements the task */
+                "FetchTasks",       /* Task name */
+                8192,               /* Stack size in words */
+                NULL,               /* Task input parameter */
+                1,                  /* Task priority */
+                &fetch_task_handle  /* Task handle for control */
             );
 
             // Delay to reduce memory pressure before weather update
@@ -463,16 +463,16 @@ static void back_button_event_cb(lv_event_t* e) {
         }
         else
         {
-            lv_label_set_text(status_label, "Sem conexão Wi-Fi");
+            lv_label_set_text(status_label, "No Wi-Fi connection");
         }
     }
 
     /**
-     * @brief Inicializa a tela de notas e seus elementos.
+     * @brief Initializes the notes screen and its elements.
      */
     inline void init()
     {
-        // Cria o mutex para proteger o acesso aos dados compartilhados entre as tarefas
+        // Creates the mutex to protect access to shared data between tasks
         data_mutex = xSemaphoreCreateMutex();
 
         notes_screen = lv_obj_create(NULL);
@@ -480,11 +480,11 @@ static void back_button_event_cb(lv_event_t* e) {
         lv_obj_set_size(notes_screen, 320, 240);
         lv_obj_set_style_bg_color(notes_screen, lv_color_hex(0xFDF5E6), LV_PART_MAIN);
 
-        // Adiciona o evento de clique à tela para permitir o refresh
+        // Adds the click event to the screen to allow refresh
         lv_obj_add_flag(notes_screen, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_add_event_cb(notes_screen, refresh_event_cb, LV_EVENT_CLICKED, NULL);
 
-        // --- Botão de Voltar ---
+        // --- Back Button ---
         back_btn = lv_btn_create(notes_screen);
         lv_obj_align(back_btn, LV_ALIGN_TOP_LEFT, 5, 5);
         lv_obj_add_event_cb(back_btn, back_button_event_cb, LV_EVENT_CLICKED, NULL);
@@ -500,21 +500,21 @@ static void back_button_event_cb(lv_event_t* e) {
         lv_obj_set_style_text_font(back_label, &lv_font_montserrat_16, 0);
         lv_obj_center(back_label);
 
-        // --- Título da Tela ---
+        // --- Screen Title ---
         title_label = lv_label_create(notes_screen);
         lv_label_set_text(title_label, "Google Tasks");
         lv_obj_set_style_text_font(title_label, &lv_font_montserrat_28, 0);
         lv_obj_set_style_text_color(title_label, lv_color_hex(0x0B3C5D), 0);
         lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 10);
 
-        // --- Lista de Tarefas ---
+        // --- Task List ---
         tasks_list = lv_list_create(notes_screen);
         lv_obj_set_size(tasks_list, 300, 180);
         lv_obj_align(tasks_list, LV_ALIGN_CENTER, 0, 20);
         lv_obj_set_style_bg_opa(tasks_list, LV_OPA_TRANSP, 0);
         lv_obj_set_style_border_width(tasks_list, 0, 0);
 
-        // --- Botão Adicionar Tarefa ---
+        // --- Add Task Button ---
         lv_obj_t *add_task_btn = lv_btn_create(notes_screen);
         lv_obj_set_size(add_task_btn, 40, 40);
         lv_obj_align(add_task_btn, LV_ALIGN_BOTTOM_LEFT, 10, -10);
@@ -532,7 +532,7 @@ static void back_button_event_cb(lv_event_t* e) {
 
         lv_obj_add_event_cb(add_task_btn, add_task_btn_event_cb, LV_EVENT_CLICKED, NULL);
 
-        // --- Label de status ---
+        // --- Status Label ---
         status_label = lv_label_create(notes_screen);
         lv_label_set_text(status_label, "");
         lv_obj_set_style_text_font(status_label, &lv_font_montserrat_12, 0);
@@ -541,7 +541,7 @@ static void back_button_event_cb(lv_event_t* e) {
     }
 
     /**
-     * @brief Mostra a tela de notas.
+     * @brief Shows the notes screen.
      */
     inline void show()
     {
@@ -554,7 +554,7 @@ static void back_button_event_cb(lv_event_t* e) {
     }
 
     /**
-     * @brief Gerencia a entrada do usuário e atualiza a interface.
+     * @brief Manages user input and updates the interface.
      */
     inline void handle()
     {
@@ -586,24 +586,24 @@ static void back_button_event_cb(lv_event_t* e) {
             }
         }
 
-        // Verifica se a tarefa de background sinalizou que há novos dados
+        // Checks if the background task signaled that there is new data
         if (data_ready_for_ui)
         {
-            // Bloqueia o acesso aos dados para fazer a leitura de forma segura
+            // Locks access to data to safely read
             if (xSemaphoreTake(data_mutex, (TickType_t)10) == pdTRUE)
             {
                 if (!fetch_status_message.isEmpty())
                 {
                     lv_label_set_text(status_label, fetch_status_message.c_str());
-                    lv_obj_clean(tasks_list); // Limpa a lista em caso de erro
+                    lv_obj_clean(tasks_list); // Clears the list in case of error
                 }
                 else
                 {
                     update_tasks_ui(tasks_doc.as<JsonObject>());
                     lv_label_set_text(status_label, ""); // Clear status message on success
                 }
-                data_ready_for_ui = false; // Reseta a flag
-                xSemaphoreGive(data_mutex); // Libera o acesso
+                data_ready_for_ui = false; // Reset the flag
+                xSemaphoreGive(data_mutex); // Release access
             }
         }
         lv_timer_handler();

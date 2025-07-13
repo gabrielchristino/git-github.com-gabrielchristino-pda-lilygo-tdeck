@@ -35,6 +35,9 @@ namespace Utils {
         digitalWrite(TDECK_PERI_POWERON, HIGH);
         delay(500);
     }
+
+    void initTimeSync();
+    struct tm getCurrentTime();
 }
 
 #endif // UTILS_H

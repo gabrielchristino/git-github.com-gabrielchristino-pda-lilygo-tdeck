@@ -1,11 +1,17 @@
 #pragma once
+#include "utils/utils.h"
 #include <lvgl.h>
 #include "input/input.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include "utils/utils.h"
 #include <ArduinoJson.h>
 #include "secrets.h"
+#include "lvgl.h"  // Added to fix undefined lv_font_montserrat_20
+
+namespace Utils {
+    void initTimeSync();
+    struct tm getCurrentTime();
+}
 
 namespace Calendar
 {
@@ -27,9 +33,20 @@ namespace Calendar
     // --- UI Variables ---
     static lv_obj_t *calendar_screen = nullptr;
     static lv_obj_t *back_btn = nullptr;
+    static lv_obj_t *back_to_month_btn = nullptr;
     static lv_obj_t *title_label = nullptr;
     static lv_obj_t *events_list = nullptr;
     static lv_obj_t *status_label = nullptr;
+
+    // --- New UI Variables for calendar grid and month navigation ---
+    static lv_obj_t *calendar_grid_cont = nullptr;
+    static lv_obj_t *month_label = nullptr;
+    static lv_obj_t *prev_month_btn = nullptr;
+    static lv_obj_t *next_month_btn = nullptr;
+
+    // --- Variables for current displayed month and year ---
+    static int current_year = 0;
+    static int current_month = 0; // 1-12
 
     // --- Variables for async operation ---
     static TaskHandle_t fetch_event_task_handle = NULL;
@@ -55,9 +72,247 @@ namespace Calendar
     static void update_event(const char *id, const char *title, const char *start, const char *end, const char *description, const char *location);
     static void delete_event(const char *id);
 
+    // --- New function prototypes for calendar grid and month navigation ---
+    static void build_calendar_grid();
+    static void update_calendar_grid();
+    static void prev_month_btn_event_cb(lv_event_t *e);
+    static void next_month_btn_event_cb(lv_event_t *e);
+
     static void back_button_event_cb(lv_event_t *e)
     {
-        AppManager::show_app(AppManager::APP_MAIN_MENU);
+        if (lv_obj_has_flag(events_list, LV_OBJ_FLAG_HIDDEN))
+        {
+            AppManager::show_app(AppManager::APP_MAIN_MENU);
+        }
+        else
+        {
+            // If events list is visible, hide it and show calendar grid
+            lv_obj_clear_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text(status_label, "");
+            if (back_to_month_btn)
+            {
+                lv_obj_add_flag(back_to_month_btn, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
+    }
+
+    static void build_calendar_grid()
+    {
+        if (calendar_grid_cont)
+        {
+            lv_obj_del(calendar_grid_cont);
+            calendar_grid_cont = nullptr;
+        }
+
+        calendar_grid_cont = lv_obj_create(calendar_screen);
+        lv_obj_set_size(calendar_grid_cont, 300, 180);
+        lv_obj_align(calendar_grid_cont, LV_ALIGN_TOP_MID, 0, 50);
+        lv_obj_set_style_bg_color(calendar_grid_cont, lv_color_hex(0xFFFFFF), 0);
+        lv_obj_set_style_border_width(calendar_grid_cont, 1, 0);
+        lv_obj_set_style_border_color(calendar_grid_cont, lv_color_hex(0xAAAAAA), 0);
+        lv_obj_set_style_pad_all(calendar_grid_cont, 5, 0);
+
+        // Month label
+        if (!month_label)
+        {
+            month_label = lv_label_create(calendar_grid_cont);
+            lv_obj_set_style_text_font(month_label, &lv_font_montserrat_20, 0);
+            lv_obj_align(month_label, LV_ALIGN_TOP_MID, 0, 0);
+        }
+
+        // Prev month button
+        if (!prev_month_btn)
+        {
+            prev_month_btn = lv_btn_create(calendar_grid_cont);
+            lv_obj_set_size(prev_month_btn, 30, 30);
+            lv_obj_align(prev_month_btn, LV_ALIGN_TOP_LEFT, 0, 0);
+            lv_obj_t *label = lv_label_create(prev_month_btn);
+            lv_label_set_text(label, "<");
+            lv_obj_center(label);
+            lv_obj_add_event_cb(prev_month_btn, prev_month_btn_event_cb, LV_EVENT_CLICKED, NULL);
+        }
+
+        // Next month button
+        if (!next_month_btn)
+        {
+            next_month_btn = lv_btn_create(calendar_grid_cont);
+            lv_obj_set_size(next_month_btn, 30, 30);
+            lv_obj_align(next_month_btn, LV_ALIGN_TOP_RIGHT, 0, 0);
+            lv_obj_t *label = lv_label_create(next_month_btn);
+            lv_label_set_text(label, ">");
+            lv_obj_center(label);
+            lv_obj_add_event_cb(next_month_btn, next_month_btn_event_cb, LV_EVENT_CLICKED, NULL);
+        }
+    }
+
+    static void prev_month_btn_event_cb(lv_event_t *e)
+    {
+        current_month--;
+        if (current_month < 1)
+        {
+            current_month = 12;
+            current_year--;
+        }
+        update_calendar_grid();
+    }
+
+    static void next_month_btn_event_cb(lv_event_t *e)
+    {
+        current_month++;
+        if (current_month > 12)
+        {
+            current_month = 1;
+            current_year++;
+        }
+        update_calendar_grid();
+    }
+
+   static void day_btn_event_cb(lv_event_t *e)
+   {
+       lv_obj_t *btn = lv_event_get_target(e);
+       int day = (int)(intptr_t)lv_obj_get_user_data(btn);
+       // Check if there are events on this day
+       bool has_event = false;
+       if (xSemaphoreTake(data_mutex, portMAX_DELAY) == pdTRUE)
+       {
+           auto items = events_doc["items"].as<JsonArray>();
+           for (JsonObject event : items)
+           {
+               const char *start = event["startTime"] | "";
+               if (strlen(start) > 0)
+               {
+                   struct tm event_time = {0};
+                   strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
+                   if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
+                   {
+                       has_event = true;
+                       break;
+                   }
+               }
+           }
+           xSemaphoreGive(data_mutex);
+       }
+       if (has_event)
+       {
+           // Filter events list to show events for this day
+           // For simplicity, just update the events_list UI with events of this day
+           lv_obj_clean(events_list);
+           lv_obj_add_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
+           lv_obj_clear_flag(events_list, LV_OBJ_FLAG_HIDDEN);
+           if (xSemaphoreTake(data_mutex, portMAX_DELAY) == pdTRUE)
+           {
+               auto items = events_doc["items"].as<JsonArray>();
+               for (int i = 0; i < (int)items.size(); i++)
+               {
+                   JsonObject event = items[i].as<JsonObject>();
+                   const char *start = event["startTime"] | "";
+                   if (strlen(start) > 0)
+                   {
+                       struct tm event_time = {0};
+                       strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
+                       if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
+                       {
+                           String title = event["title"] | "Untitled";
+                           title = Utils::sanitizeString(title);
+                           lv_obj_t *btn = lv_list_add_btn(events_list, NULL, title.c_str());
+                           lv_obj_set_user_data(btn, (void *)(intptr_t)i);
+                           lv_obj_add_event_cb(btn, event_list_item_click_event_cb, LV_EVENT_CLICKED, NULL);
+                       }
+                   }
+               }
+               xSemaphoreGive(data_mutex);
+           }
+           lv_label_set_text(status_label, "Filtered events for selected day");
+       }
+       else
+       {
+           lv_obj_clear_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
+           lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
+           // Open modal for new event with date pre-filled and default times 8am-9am
+           char start_time[20];
+           char end_time[20];
+           snprintf(start_time, sizeof(start_time), "%04d-%02d-%02dT08:00:00", current_year, current_month, day);
+           snprintf(end_time, sizeof(end_time), "%04d-%02d-%02dT09:00:00", current_year, current_month, day);
+           is_editing_event = false;
+           show_event_modal(nullptr, start_time, end_time, nullptr, nullptr);
+       }
+   }
+
+    static void update_calendar_grid()
+    {
+        if (!calendar_grid_cont)
+            return;
+
+        // Update month label text
+        static const char *month_names[12] = {"January", "February", "March", "April", "May", "June",
+                                             "July", "August", "September", "October", "November", "December"};
+        char month_year_str[32];
+        snprintf(month_year_str, sizeof(month_year_str), "%s %d", month_names[current_month - 1], current_year);
+        lv_label_set_text(month_label, month_year_str);
+
+        // Remove existing day buttons and labels except month label and nav buttons
+        uint32_t child_count = lv_obj_get_child_cnt(calendar_grid_cont);
+        for (int i = (int)child_count - 1; i >= 0; i--)
+        {
+            lv_obj_t *child = lv_obj_get_child(calendar_grid_cont, i);
+            if (child != month_label && child != prev_month_btn && child != next_month_btn)
+            {
+                lv_obj_del(child);
+            }
+        }
+
+        // Day of week labels
+        static const char *day_names[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        for (int i = 0; i < 7; i++)
+        {
+            lv_obj_t *day_label = lv_label_create(calendar_grid_cont);
+            lv_label_set_text(day_label, day_names[i]);
+            lv_obj_set_style_text_font(day_label, &lv_font_montserrat_12, 0);
+            lv_obj_set_style_text_color(day_label, lv_color_hex(0x000000), 0);
+            lv_obj_set_pos(day_label, 5 + i * 40, 30);
+        }
+
+        // Calculate first day of month weekday and number of days in month
+        struct tm timeinfo = {0};
+        timeinfo.tm_year = current_year - 1900;
+        timeinfo.tm_mon = current_month - 1;
+        timeinfo.tm_mday = 1;
+        mktime(&timeinfo);
+        int first_weekday = timeinfo.tm_wday; // 0=Sun, 1=Mon, ...
+        int days_in_month = 31;
+        if (current_month == 2)
+        {
+            // Leap year check
+            bool leap = (current_year % 4 == 0 && (current_year % 100 != 0 || current_year % 400 == 0));
+            days_in_month = leap ? 29 : 28;
+        }
+        else if (current_month == 4 || current_month == 6 || current_month == 9 || current_month == 11)
+        {
+            days_in_month = 30;
+        }
+
+        // Create day buttons
+        for (int day = 1; day <= days_in_month; day++)
+        {
+            lv_obj_t *day_btn = lv_btn_create(calendar_grid_cont);
+            lv_obj_set_size(day_btn, 35, 35);
+            int col = (first_weekday + day - 1) % 7;
+            int row = (first_weekday + day - 1) / 7;
+            lv_obj_set_pos(day_btn, 5 + col * 40, 50 + row * 40);
+
+            char day_str[4];
+            snprintf(day_str, sizeof(day_str), "%d", day);
+            lv_obj_t *label = lv_label_create(day_btn);
+            lv_label_set_text(label, day_str);
+            lv_obj_center(label);
+
+            // TODO: Show bullet if day has events (to be implemented in next step)
+
+            // Store day number in user data for click event
+            lv_obj_set_user_data(day_btn, (void *)(intptr_t)day);
+            lv_obj_add_event_cb(day_btn, day_btn_event_cb, LV_EVENT_CLICKED, NULL);
+        }
     }
 
     static void event_cancel_btn_event_cb(lv_event_t *e)
@@ -247,7 +502,7 @@ namespace Calendar
     static void create_event(const char *title, const char *start, const char *end, const char *description, const char *location)
     {
         HTTPClient http;
-        http.begin(GOOGLE_SCRIPT_URL_TASKS);
+        http.begin(GOOGLE_SCRIPT_URL_CALENDAR);
         http.addHeader("Content-Type", "application/json");
         String payload = "{\"title\":\"" + String(title) + "\",\"startTime\":\"" + String(start) + "\",\"endTime\":\"" + String(end) + "\",\"description\":\"" + String(description) + "\",\"location\":\"" + String(location) + "\"}";
         int http_code = http.POST(payload);
@@ -261,7 +516,7 @@ namespace Calendar
     static void update_event(const char *id, const char *title, const char *start, const char *end, const char *description, const char *location)
     {
         HTTPClient http;
-        http.begin(GOOGLE_SCRIPT_URL_TASKS);
+        http.begin(GOOGLE_SCRIPT_URL_CALENDAR);
         http.addHeader("Content-Type", "application/json");
         String postPayload = "{\"id\":\"" + String(id) + "\", \"title\":\"" + String(title) + "\", \"startTime\":\"" + String(start) + "\", \"endTime\":\"" + String(end) + "\", \"description\":\"" + String(description) + "\", \"location\":\"" + String(location) + "\", \"update\": true}";
         int http_code = http.POST(postPayload);
@@ -275,7 +530,7 @@ namespace Calendar
     static void delete_event(const char *id)
     {
         HTTPClient http;
-        http.begin(GOOGLE_SCRIPT_URL_TASKS);
+        http.begin(GOOGLE_SCRIPT_URL_CALENDAR);
         http.addHeader("Content-Type", "application/json");
         String postPayload = "{\"id\":\"" + String(id) + "\", \"delete\": true}";
         int http_code = http.POST(postPayload);
@@ -409,7 +664,7 @@ namespace Calendar
     static void fetch_events_task(void *parameter)
     {
         HTTPClient http;
-        String url = GOOGLE_SCRIPT_URL_TASKS;
+        String url = GOOGLE_SCRIPT_URL_CALENDAR;
 
         http.begin(url);
         http.setConnectTimeout(5000);
@@ -485,6 +740,26 @@ namespace Calendar
     {
         data_mutex = xSemaphoreCreateMutex();
 
+        // Initialize current year and month to current date if not set
+        if (current_year == 0 || current_month == 0)
+        {
+            Utils::initTimeSync();
+            struct tm timeinfo = Utils::getCurrentTime();
+            int year = timeinfo.tm_year + 1900;
+            int month = timeinfo.tm_mon + 1;
+            if (year < 2020)
+            {
+                // Fallback default date if system time not set
+                current_year = 2023;
+                current_month = 1;
+            }
+            else
+            {
+                current_year = year;
+                current_month = month;
+            }
+        }
+
         calendar_screen = lv_obj_create(NULL);
         lv_obj_add_flag(calendar_screen, LV_OBJ_FLAG_HIDDEN);
         lv_obj_set_size(calendar_screen, 320, 240);
@@ -537,6 +812,25 @@ namespace Calendar
 
         lv_obj_add_event_cb(add_event_btn, add_event_btn_event_cb, LV_EVENT_CLICKED, NULL);
 
+        build_calendar_grid();
+
+        back_to_month_btn = lv_btn_create(calendar_screen);
+        lv_obj_set_size(back_to_month_btn, 100, 40);
+        lv_obj_align(back_to_month_btn, LV_ALIGN_BOTTOM_MID, 0, -10);
+        lv_obj_set_style_bg_color(back_to_month_btn, lv_color_hex(0x1A5FB4), LV_PART_MAIN);
+        lv_obj_set_style_bg_opa(back_to_month_btn, LV_OPA_70, LV_PART_MAIN);
+        lv_obj_set_style_radius(back_to_month_btn, 12, LV_PART_MAIN);
+        lv_obj_set_style_border_width(back_to_month_btn, 0, LV_PART_MAIN);
+        lv_obj_set_style_shadow_opa(back_to_month_btn, 0, LV_PART_MAIN);
+
+        lv_obj_t *back_to_month_label = lv_label_create(back_to_month_btn);
+        lv_label_set_text(back_to_month_label, "Back to Month");
+        lv_obj_set_style_text_color(back_to_month_label, lv_color_hex(0xFFFFFF), 0);
+        lv_obj_set_style_text_font(back_to_month_label, &lv_font_montserrat_20, 0);
+        lv_obj_center(back_to_month_label);
+
+        lv_obj_add_event_cb(back_to_month_btn, back_button_event_cb, LV_EVENT_CLICKED, NULL);
+
         status_label = lv_label_create(calendar_screen);
         lv_label_set_text(status_label, "");
         lv_obj_set_style_text_font(status_label, &lv_font_montserrat_12, 0);
@@ -549,6 +843,7 @@ namespace Calendar
         if (calendar_screen)
         {
             fetch_events();
+            update_calendar_grid();
             lv_obj_clear_flag(calendar_screen, LV_OBJ_FLAG_HIDDEN);
             lv_scr_load(calendar_screen);
         }

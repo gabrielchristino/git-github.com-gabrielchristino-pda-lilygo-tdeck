@@ -54,9 +54,10 @@ namespace AppManager {
 static App current_app = APP_MAIN_MENU;
 
 inline void init() {
+    Settings::init();
+    delay(1000);
     MainMenu::init();
     Calculator::init();
-    Settings::init();
     Weather::init();
     Notes::init();
     Calendar::init();

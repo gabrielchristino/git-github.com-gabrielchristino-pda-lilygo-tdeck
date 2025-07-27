@@ -33,7 +33,6 @@ namespace Calendar
     // --- UI Variables ---
     static lv_obj_t *calendar_screen = nullptr;
     static lv_obj_t *back_btn = nullptr;
-    static lv_obj_t *back_to_month_btn = nullptr;
     static lv_obj_t *title_label = nullptr;
     static lv_obj_t *events_list = nullptr;
     static lv_obj_t *status_label = nullptr;
@@ -51,7 +50,7 @@ namespace Calendar
     // --- Variables for async operation ---
     static TaskHandle_t fetch_event_task_handle = NULL;
     static SemaphoreHandle_t data_mutex = NULL;
-    static DynamicJsonDocument events_doc(8192);
+    static JsonDocument events_doc;
     static volatile bool data_ready_for_ui = false;
     static String fetch_status_message = "";
 
@@ -90,10 +89,6 @@ namespace Calendar
             lv_obj_clear_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
             lv_label_set_text(status_label, "");
-            if (back_to_month_btn)
-            {
-                lv_obj_add_flag(back_to_month_btn, LV_OBJ_FLAG_HIDDEN);
-            }
         }
     }
 
@@ -580,8 +575,17 @@ namespace Calendar
         fetch_events();
     }
 
-    static void refresh_event_cb(lv_event_t *e)
+static void refresh_event_cb(lv_event_t *e)
     {
+        // Update current year and month to current time
+        struct tm timeinfo = Utils::getCurrentTime();
+        int year = timeinfo.tm_year + 1900;
+        int month = timeinfo.tm_mon + 1;
+        if (year >= 2020)
+        {
+            current_year = year;
+            current_month = month;
+        }
         fetch_events();
     }
 
@@ -589,6 +593,7 @@ namespace Calendar
     {
         lv_obj_clean(events_list);
 
+        // Apply styling similar to notes list
         lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, LV_PART_MAIN);
         lv_obj_set_style_border_width(events_list, 0, LV_PART_MAIN);
         lv_obj_set_style_text_color(events_list, lv_color_hex(0x0B3C5D), LV_PART_MAIN);
@@ -618,6 +623,33 @@ namespace Calendar
             lv_obj_t *btn = lv_list_add_btn(events_list, NULL, title.c_str());
             lv_obj_set_user_data(btn, (void *)(intptr_t)i);
             lv_obj_add_event_cb(btn, event_list_item_click_event_cb, LV_EVENT_CLICKED, NULL);
+
+            // Set button style to match calendar screen background and text color
+            // Set background and text color for all states and parts to override default styles
+            lv_obj_set_style_bg_color(btn, lv_color_hex(0xFDF5E6), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_bg_color(btn, lv_color_hex(0xFDF5E6), LV_PART_MAIN | LV_STATE_PRESSED);
+            lv_obj_set_style_bg_color(btn, lv_color_hex(0xFDF5E6), LV_PART_MAIN | LV_STATE_FOCUSED);
+            lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_PRESSED);
+            lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_FOCUSED);
+            lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN | LV_STATE_PRESSED);
+            lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN | LV_STATE_FOCUSED);
+            lv_obj_set_style_text_color(btn, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_color(btn, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_PRESSED);
+            lv_obj_set_style_text_color(btn, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_FOCUSED);
+
+            // Also style the label inside the button for all states
+            if (lv_obj_get_child_cnt(btn) > 0)
+            {
+                lv_obj_t *label = lv_obj_get_child(btn, 0);
+                lv_obj_set_style_text_color(label, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_DEFAULT);
+                lv_obj_set_style_text_color(label, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_PRESSED);
+                lv_obj_set_style_text_color(label, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_FOCUSED);
+                lv_obj_set_style_bg_opa(label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
+                lv_obj_set_style_bg_opa(label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_PRESSED);
+                lv_obj_set_style_bg_opa(label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_FOCUSED);
+            }
         }
 
         uint32_t child_count = lv_obj_get_child_cnt(events_list);
@@ -736,8 +768,9 @@ namespace Calendar
         }
     }
 
-    inline void init()
+inline void init()
     {
+        LV_LOG_USER("Initializing Google Calendar App");
         data_mutex = xSemaphoreCreateMutex();
 
         // Initialize current year and month to current date if not set
@@ -759,6 +792,7 @@ namespace Calendar
                 current_month = month;
             }
         }
+        LV_LOG_USER("Current year: %d, current month: %d", current_year, current_month);
 
         calendar_screen = lv_obj_create(NULL);
         lv_obj_add_flag(calendar_screen, LV_OBJ_FLAG_HIDDEN);
@@ -784,7 +818,7 @@ namespace Calendar
         lv_obj_center(back_label);
 
         title_label = lv_label_create(calendar_screen);
-        lv_label_set_text(title_label, "Google Calendar");
+        lv_label_set_text(title_label, "Calendar");
         lv_obj_set_style_text_font(title_label, &lv_font_montserrat_28, 0);
         lv_obj_set_style_text_color(title_label, lv_color_hex(0x0B3C5D), 0);
         lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 10);
@@ -792,8 +826,9 @@ namespace Calendar
         events_list = lv_list_create(calendar_screen);
         lv_obj_set_size(events_list, 300, 180);
         lv_obj_align(events_list, LV_ALIGN_CENTER, 0, 20);
-        lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, 0);
-        lv_obj_set_style_border_width(events_list, 0, 0);
+        lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, LV_PART_MAIN);
+        lv_obj_set_style_border_width(events_list, 0, LV_PART_MAIN);
+        lv_obj_set_style_text_color(events_list, lv_color_hex(0x0B3C5D), LV_PART_MAIN);
 
         lv_obj_t *add_event_btn = lv_btn_create(calendar_screen);
         lv_obj_set_size(add_event_btn, 40, 40);
@@ -813,23 +848,6 @@ namespace Calendar
         lv_obj_add_event_cb(add_event_btn, add_event_btn_event_cb, LV_EVENT_CLICKED, NULL);
 
         build_calendar_grid();
-
-        back_to_month_btn = lv_btn_create(calendar_screen);
-        lv_obj_set_size(back_to_month_btn, 100, 40);
-        lv_obj_align(back_to_month_btn, LV_ALIGN_BOTTOM_MID, 0, -10);
-        lv_obj_set_style_bg_color(back_to_month_btn, lv_color_hex(0x1A5FB4), LV_PART_MAIN);
-        lv_obj_set_style_bg_opa(back_to_month_btn, LV_OPA_70, LV_PART_MAIN);
-        lv_obj_set_style_radius(back_to_month_btn, 12, LV_PART_MAIN);
-        lv_obj_set_style_border_width(back_to_month_btn, 0, LV_PART_MAIN);
-        lv_obj_set_style_shadow_opa(back_to_month_btn, 0, LV_PART_MAIN);
-
-        lv_obj_t *back_to_month_label = lv_label_create(back_to_month_btn);
-        lv_label_set_text(back_to_month_label, "Back to Month");
-        lv_obj_set_style_text_color(back_to_month_label, lv_color_hex(0xFFFFFF), 0);
-        lv_obj_set_style_text_font(back_to_month_label, &lv_font_montserrat_20, 0);
-        lv_obj_center(back_to_month_label);
-
-        lv_obj_add_event_cb(back_to_month_btn, back_button_event_cb, LV_EVENT_CLICKED, NULL);
 
         status_label = lv_label_create(calendar_screen);
         lv_label_set_text(status_label, "");

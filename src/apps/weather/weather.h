@@ -124,7 +124,7 @@ static void fetch_weather_data() {
     if (http_code > 0) {
         if (http_code == HTTP_CODE_OK) {
             String payload = http.getString();
-            DynamicJsonDocument doc(2048); // Aumentado por segurança
+            JsonDocument doc;
             DeserializationError error = deserializeJson(doc, payload);
 
             if (error) {

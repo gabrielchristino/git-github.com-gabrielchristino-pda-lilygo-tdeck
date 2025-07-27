@@ -5,6 +5,7 @@
 #include <Preferences.h>
 #include "driver/ledc.h"
 #include <ctype.h>
+#include <ArduinoJson.h>
 #include "input/trackball/trackball.h"
 
 // Este arquivo é incluído a partir de `apps.h`, que já define o AppManager.
@@ -18,6 +19,10 @@ const char KEY_CLEAR_ENTRY = 2; // Corresponds to a special key from the firmwar
 // --- Constants for Backlight ---
 #define BACKLIGHT_PIN 10
 #define LEDC_CHANNEL_BRIGHTNESS 0
+
+// --- Constants for Wi-Fi History ---
+#define MAX_SAVED_NETWORKS 5
+#define SAVED_NETWORKS_KEY "saved_wifis"
 
 static lv_obj_t* settings_screen = nullptr; // A tela principal
 static lv_obj_t* main_container = nullptr;  // O contêiner principal para os itens do menu
@@ -57,7 +62,7 @@ static lv_obj_t* create_accordion_item(lv_obj_t* parent, const char* icon, const
 static void update_wifi_list_selection_visuals();
 static void wifi_list_item_click_event_cb(lv_event_t* e);
 static void show_password_modal(const char* ssid);
-static void attempt_wifi_connection(const char* ssid, const char* password);
+static void attempt_wifi_connection(const char* ssid, const char* password, bool is_auto_connect = false);
 static void close_password_modal();
 static void password_cancel_event_cb(lv_event_t* e);
 static void display_wifi_connected_ui();
@@ -246,13 +251,15 @@ static void show_password_modal(const char* ssid) {
 /**
  * @brief (Placeholder) Inicia a tentativa de conexão Wi-Fi e mostra o status.
  */
-static void attempt_wifi_connection(const char* ssid, const char* password) {
-    is_wifi_list_focused = false; // Desabilita a navegação na lista enquanto conecta
-    lv_obj_clean(wifi_list);
-    char status_text[64];
-    snprintf(status_text, sizeof(status_text), "Connecting to %s...", ssid);
-    lv_list_add_text(wifi_list, status_text);
-    lv_timer_handler(); // Força a UI a redesenhar
+static void attempt_wifi_connection(const char* ssid, const char* password, bool is_auto_connect) {
+    if (!is_auto_connect) {
+        is_wifi_list_focused = false; // Desabilita a navegação na lista enquanto conecta
+        lv_obj_clean(wifi_list);
+        char status_text[64];
+        snprintf(status_text, sizeof(status_text), "Connecting to %s...", ssid);
+        lv_list_add_text(wifi_list, status_text);
+        lv_timer_handler(); // Força a UI a redesenhar
+    }
 
     WiFi.begin(ssid, password);
     wifi_connect_status = CONNECTING;
@@ -300,10 +307,7 @@ static void display_wifi_connected_ui() {
  */
 static void disconnect_wifi_event_cb(lv_event_t* e) {
     LV_LOG_USER("Disconnecting Wi-Fi...");
-    // Limpa as credenciais salvas
-    preferences.begin("wifi-creds", false);
-    preferences.clear();
-    preferences.end();
+    // A lógica de "esquecer" a rede poderia ser mais complexa, por agora apenas desconecta.
     WiFi.disconnect(true);
     is_disconnect_ui_focused = false;
     wifi_connect_status = IDLE;
@@ -458,21 +462,84 @@ static lv_obj_t* create_accordion_item(lv_obj_t* parent, const char* icon, const
 }
 
 /**
+ * @brief Salva uma rede Wi-Fi na lista de redes recentes.
+ * @param ssid O SSID da rede.
+ * @param password A senha da rede.
+ */
+static void save_wifi_network(const char* ssid, const char* password) {
+    preferences.begin("wifi-creds", false);
+
+    // Lê a lista existente ou cria uma nova
+    String json_string = preferences.getString(SAVED_NETWORKS_KEY, "[]");
+    JsonDocument old_doc;
+    deserializeJson(old_doc, json_string);
+    JsonArray old_array = old_doc.as<JsonArray>();
+
+    // Cria um novo documento e array para a lista atualizada
+    JsonDocument new_doc;
+    JsonArray new_array = new_doc.to<JsonArray>();
+
+    // Adiciona a nova rede no início da lista
+    JsonObject new_entry = new_array.add<JsonObject>();
+    new_entry["ssid"] = ssid;
+    new_entry["pass"] = password;
+
+    // Adiciona as redes antigas, pulando qualquer duplicata do SSID recém-adicionado
+    for (JsonObject old_entry : old_array) {
+        if (new_array.size() >= MAX_SAVED_NETWORKS) {
+            break; // Para de adicionar se o limite for atingido
+        }
+        if (strcmp(old_entry["ssid"], ssid) != 0) {
+            new_array.add(old_entry);
+        }
+    }
+
+    // Salva a lista atualizada
+    String new_json_string;
+    serializeJson(new_doc, new_json_string);
+    preferences.putString(SAVED_NETWORKS_KEY, new_json_string);
+
+    preferences.end();
+    LV_LOG_USER("Wi-Fi network list updated.");
+}
+
+/**
  * @brief Tenta se conectar automaticamente ao Wi-Fi na inicialização usando credenciais salvas.
  */
 static void auto_connect_wifi() {
     preferences.begin("wifi-creds", true); // Abre em modo somente leitura
-    String saved_ssid = preferences.getString("wifi_ssid", "");
-    String saved_pass = preferences.getString("wifi_pass", "");
+    String json_string = preferences.getString(SAVED_NETWORKS_KEY, "[]");
     preferences.end();
 
-    if (saved_ssid.length() > 0) {
-        LV_LOG_USER("Found saved Wi-Fi credentials for %s. Attempting to auto-connect...", saved_ssid.c_str());
-        WiFi.mode(WIFI_STA); // Garante que o modo está correto
-        WiFi.begin(saved_ssid.c_str(), saved_pass.c_str());
-        // A conexão ocorrerá em segundo plano. O status será verificado quando o app for aberto.
-    } else {
-        LV_LOG_USER("No saved Wi-Fi credentials found.");
+    JsonDocument doc; // Usar JsonDocument aqui também para consistência
+    deserializeJson(doc, json_string);
+    JsonArray array = doc.as<JsonArray>();
+
+    if (array.size() == 0) {
+        LV_LOG_USER("No saved Wi-Fi networks found.");
+        return;
+    }
+
+    for (JsonObject network : array) {
+        const char* ssid = network["ssid"];
+        const char* pass = network["pass"];
+        LV_LOG_USER("Attempting to auto-connect to: %s", ssid);
+        WiFi.begin(ssid, pass);
+
+        unsigned long start_time = millis();
+        while (WiFi.status() != WL_CONNECTED && millis() - start_time < 10000) { // Timeout de 10s por rede
+            delay(500);
+        }
+
+        if (WiFi.status() == WL_CONNECTED) {
+            LV_LOG_USER("Auto-connected successfully to %s", ssid);
+            // Re-salva para mover esta rede para o topo da lista de "mais recentes"
+            save_wifi_network(ssid, pass);
+            return; // Sai da função ao conectar
+        } else {
+            LV_LOG_USER("Failed to connect to %s", ssid);
+            WiFi.disconnect(); // Garante que está limpo para a próxima tentativa
+        }
     }
 }
 
@@ -631,7 +698,7 @@ inline void handle() {
                     strncpy(entered_password, password, sizeof(entered_password) - 1);
                     entered_password[sizeof(entered_password) - 1] = '\0';
                     LV_LOG_USER("Attempting to connect to %s with password: %s", selected_ssid, password);
-                    attempt_wifi_connection(selected_ssid, password);
+                    attempt_wifi_connection(selected_ssid, password, false);
                     close_password_modal();
                     break;
                 }
@@ -656,12 +723,8 @@ inline void handle() {
     if (wifi_connect_status == CONNECTING) {
         if (WiFi.status() == WL_CONNECTED) {
             LV_LOG_USER("Successfully connected to %s", selected_ssid);
-
-            // Salva as credenciais para reconexão automática
-            preferences.begin("wifi-creds", false); // Abre em modo de escrita
-            preferences.putString("wifi_ssid", selected_ssid);
-            preferences.putString("wifi_pass", entered_password);
-            preferences.end();
+            // Salva a rede na lista de redes recentes
+            save_wifi_network(selected_ssid, entered_password);
             strcpy(entered_password, ""); // Limpa a senha temporária
 
             wifi_connect_status = CONNECTED;

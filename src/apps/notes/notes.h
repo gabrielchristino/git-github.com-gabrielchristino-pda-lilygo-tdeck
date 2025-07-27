@@ -6,6 +6,7 @@
 #include "utils/utils.h"
 #include <ArduinoJson.h>
 #include "secrets.h"
+#include "Icons/lv_img_sync.c"
 
 // Included from apps.h, which already defines the AppManager.
 
@@ -29,6 +30,7 @@ namespace Notes
     static lv_obj_t *title_label = nullptr;
     static lv_obj_t *tasks_list = nullptr;
     static lv_obj_t *status_label = nullptr;
+    static lv_obj_t* no_tasks_img = nullptr; // Ponteiro para a imagem de "sem tarefas"
 
     // --- Variables for asynchronous operation ---
     static TaskHandle_t fetch_task_handle = NULL;
@@ -297,6 +299,13 @@ static void back_button_event_cb(lv_event_t* e) {
      */
     static void update_tasks_ui(JsonVariant doc)
     {
+        // Se a imagem "sem tarefas" existir, apague-a antes de atualizar a UI.
+        if (no_tasks_img) {
+            lv_obj_del(no_tasks_img);
+            no_tasks_img = nullptr;
+        }
+        // Garante que a lista de tarefas esteja visível para o caso de uma atualização
+        lv_obj_clear_flag(tasks_list, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clean(tasks_list);
 
         // Apply styling similar to WiFi list in settings
@@ -306,21 +315,23 @@ static void back_button_event_cb(lv_event_t* e) {
 
         // Use auto&& to avoid copying and binding issues
         auto&& tasks_var = doc["items"];
-        if (!tasks_var.is<JsonArray>())
+        if (!tasks_var.is<JsonArray>() || tasks_var.as<JsonArray>().size() == 0)
         {
-            lv_list_add_text(tasks_list, "No tasks found.");
-            lv_label_set_text(status_label, "No tasks.");
+            // Esconde a lista vazia para não interferir
+            lv_obj_add_flag(tasks_list, LV_OBJ_FLAG_HIDDEN);
+
+            // Cria a imagem de sincronização no centro da tela principal
+            no_tasks_img = lv_img_create(notes_screen);
+            lv_img_set_src(no_tasks_img, &lv_img_sync);
+            lv_obj_add_flag(no_tasks_img, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_align(no_tasks_img, LV_ALIGN_CENTER, 0, 0); // Centraliza na tela
+            lv_obj_add_event_cb(no_tasks_img, refresh_event_cb, LV_EVENT_CLICKED, NULL);
+
+            lv_label_set_text(status_label, ""); // Remove o texto do label de status
             return;
         }
 
         auto&& tasks = tasks_var.as<JsonArray>();
-
-        if (tasks.size() == 0)
-        {
-            lv_list_add_text(tasks_list, "No tasks found.");
-            lv_label_set_text(status_label, "No tasks.");
-            return;
-        }
 
         for (int i = 0; i < (int)tasks.size(); i++)
         {
@@ -502,7 +513,7 @@ static void back_button_event_cb(lv_event_t* e) {
 
         // --- Screen Title ---
         title_label = lv_label_create(notes_screen);
-        lv_label_set_text(title_label, "Google Tasks");
+        lv_label_set_text(title_label, "Notes");
         lv_obj_set_style_text_font(title_label, &lv_font_montserrat_28, 0);
         lv_obj_set_style_text_color(title_label, lv_color_hex(0x0B3C5D), 0);
         lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 10);

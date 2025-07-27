@@ -409,30 +409,56 @@ namespace Calendar
         else
             lv_textarea_set_text(event_title_textarea, "");
 
+        // Extract hour and minute from start datetime string
+        String start_time_str = "";
+        if (start)
+        {
+            String start_str(start);
+            int t_pos = start_str.indexOf('T');
+            if (t_pos != -1 && (t_pos + 6) < start_str.length())
+            {
+                start_time_str = start_str.substring(t_pos + 1, t_pos + 6); // HH:MM
+            }
+            else
+            {
+                start_time_str = start_str;
+            }
+        }
+
         event_start_textarea = lv_textarea_create(event_modal_cont);
         lv_textarea_set_one_line(event_start_textarea, true);
-        lv_obj_set_width(event_start_textarea, lv_pct(80));
-        lv_obj_align(event_start_textarea, LV_ALIGN_TOP_MID, 0, 80);
-        lv_textarea_set_placeholder_text(event_start_textarea, "Start Time (ISO8601)");
-        if (start)
-            lv_textarea_set_text(event_start_textarea, start);
-        else
-            lv_textarea_set_text(event_start_textarea, "");
+        lv_obj_set_width(event_start_textarea, lv_pct(39));
+        lv_obj_align(event_start_textarea, LV_ALIGN_TOP_LEFT, 30, 80);
+        lv_textarea_set_placeholder_text(event_start_textarea, "Start Time (HH:MM)");
+        lv_textarea_set_text(event_start_textarea, start_time_str.c_str());
+
+        // Extract hour and minute from end datetime string
+        String end_time_str = "";
+        if (end)
+        {
+            String end_str(end);
+            int t_pos = end_str.indexOf('T');
+            if (t_pos != -1 && (t_pos + 6) < end_str.length())
+            {
+                end_time_str = end_str.substring(t_pos + 1, t_pos + 6); // HH:MM
+            }
+            else
+            {
+                end_time_str = end_str;
+            }
+        }
 
         event_end_textarea = lv_textarea_create(event_modal_cont);
         lv_textarea_set_one_line(event_end_textarea, true);
-        lv_obj_set_width(event_end_textarea, lv_pct(80));
-        lv_obj_align(event_end_textarea, LV_ALIGN_TOP_MID, 0, 120);
-        lv_textarea_set_placeholder_text(event_end_textarea, "End Time (ISO8601)");
-        if (end)
-            lv_textarea_set_text(event_end_textarea, end);
-        else
-            lv_textarea_set_text(event_end_textarea, "");
+        lv_obj_set_width(event_end_textarea, lv_pct(39));
+        lv_obj_align(event_end_textarea, LV_ALIGN_TOP_RIGHT, -30, 80);
+        lv_textarea_set_placeholder_text(event_end_textarea, "End Time (HH:MM)");
+        lv_textarea_set_text(event_end_textarea, end_time_str.c_str());
 
         event_description_textarea = lv_textarea_create(event_modal_cont);
         lv_textarea_set_one_line(event_description_textarea, false);
         lv_obj_set_width(event_description_textarea, lv_pct(80));
-        lv_obj_align(event_description_textarea, LV_ALIGN_TOP_MID, 0, 160);
+        lv_obj_align(event_description_textarea, LV_ALIGN_TOP_MID, 0, 120);
         lv_textarea_set_placeholder_text(event_description_textarea, "Description");
         if (description)
             lv_textarea_set_text(event_description_textarea, description);

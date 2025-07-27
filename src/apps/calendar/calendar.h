@@ -456,7 +456,7 @@ namespace Calendar
         lv_textarea_set_text(event_end_textarea, end_time_str.c_str());
 
         event_description_textarea = lv_textarea_create(event_modal_cont);
-        lv_textarea_set_one_line(event_description_textarea, false);
+        lv_textarea_set_one_line(event_description_textarea, true);
         lv_obj_set_width(event_description_textarea, lv_pct(80));
         lv_obj_align(event_description_textarea, LV_ALIGN_TOP_MID, 0, 120);
         lv_textarea_set_placeholder_text(event_description_textarea, "Description");
@@ -468,7 +468,7 @@ namespace Calendar
         event_location_textarea = lv_textarea_create(event_modal_cont);
         lv_textarea_set_one_line(event_location_textarea, true);
         lv_obj_set_width(event_location_textarea, lv_pct(80));
-        lv_obj_align(event_location_textarea, LV_ALIGN_TOP_MID, 0, 200);
+        lv_obj_align(event_location_textarea, LV_ALIGN_TOP_MID, 0, 160);
         lv_textarea_set_placeholder_text(event_location_textarea, "Location");
         if (location)
             lv_textarea_set_text(event_location_textarea, location);

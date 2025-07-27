@@ -6,9 +6,10 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include "secrets.h"
-#include "lvgl.h"  // Added to fix undefined lv_font_montserrat_20
+#include "lvgl.h"
 
-namespace Utils {
+namespace Utils
+{
     void initTimeSync();
     struct tm getCurrentTime();
 }
@@ -163,76 +164,90 @@ namespace Calendar
         update_calendar_grid();
     }
 
-   static void day_btn_event_cb(lv_event_t *e)
-   {
-       lv_obj_t *btn = lv_event_get_target(e);
-       int day = (int)(intptr_t)lv_obj_get_user_data(btn);
-       // Check if there are events on this day
-       bool has_event = false;
-       if (xSemaphoreTake(data_mutex, portMAX_DELAY) == pdTRUE)
-       {
-           auto items = events_doc["items"].as<JsonArray>();
-           for (JsonObject event : items)
-           {
-               const char *start = event["startTime"] | "";
-               if (strlen(start) > 0)
-               {
-                   struct tm event_time = {0};
-                   strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
-                   if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
-                   {
-                       has_event = true;
-                       break;
-                   }
-               }
-           }
-           xSemaphoreGive(data_mutex);
-       }
-       if (has_event)
-       {
-           // Filter events list to show events for this day
-           // For simplicity, just update the events_list UI with events of this day
-           lv_obj_clean(events_list);
-           lv_obj_add_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
-           lv_obj_clear_flag(events_list, LV_OBJ_FLAG_HIDDEN);
-           if (xSemaphoreTake(data_mutex, portMAX_DELAY) == pdTRUE)
-           {
-               auto items = events_doc["items"].as<JsonArray>();
-               for (int i = 0; i < (int)items.size(); i++)
-               {
-                   JsonObject event = items[i].as<JsonObject>();
-                   const char *start = event["startTime"] | "";
-                   if (strlen(start) > 0)
-                   {
-                       struct tm event_time = {0};
-                       strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
-                       if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
-                       {
-                           String title = event["title"] | "Untitled";
-                           title = Utils::sanitizeString(title);
-                           lv_obj_t *btn = lv_list_add_btn(events_list, NULL, title.c_str());
-                           lv_obj_set_user_data(btn, (void *)(intptr_t)i);
-                           lv_obj_add_event_cb(btn, event_list_item_click_event_cb, LV_EVENT_CLICKED, NULL);
-                       }
-                   }
-               }
-               xSemaphoreGive(data_mutex);
-           }
-           lv_label_set_text(status_label, "Filtered events for selected day");
-       }
-       else
-       {
-           lv_obj_clear_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
-           lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
-           // Open modal for new event with date pre-filled and default times 8am-9am
-           char start_time[20];
-           char end_time[20];
-           snprintf(start_time, sizeof(start_time), "%04d-%02d-%02dT08:00:00", current_year, current_month, day);
-           snprintf(end_time, sizeof(end_time), "%04d-%02d-%02dT09:00:00", current_year, current_month, day);
-           is_editing_event = false;
-           show_event_modal(nullptr, start_time, end_time, nullptr, nullptr);
-       }
-   }
+    static void day_btn_event_cb(lv_event_t *e)
+    {
+        lv_obj_t *btn = lv_event_get_target(e);
+        int day = (int)(intptr_t)lv_obj_get_user_data(btn);
+        // Check if there are events on this day
+        bool has_event = false;
+        if (xSemaphoreTake(data_mutex, portMAX_DELAY) == pdTRUE)
+        {
+            auto items = events_doc["items"].as<JsonArray>();
+            for (JsonObject event : items)
+            {
+                const char *start = event["startTime"] | "";
+                if (strlen(start) > 0)
+                {
+                    struct tm event_time = {0};
+                    strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
+                    if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
+                    {
+                        has_event = true;
+                        break;
+                    }
+                }
+            }
+            xSemaphoreGive(data_mutex);
+        }
+        if (has_event)
+        {
+            // Filter events list to show events for this day
+            // For simplicity, just update the events_list UI with events of this day
+            lv_obj_clean(events_list);
+            lv_obj_add_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(events_list, LV_OBJ_FLAG_HIDDEN);
+            if (xSemaphoreTake(data_mutex, portMAX_DELAY) == pdTRUE)
+            {
+                auto items = events_doc["items"].as<JsonArray>();
+                for (int i = 0; i < (int)items.size(); i++)
+                {
+                    JsonObject event = items[i].as<JsonObject>();
+                    const char *start = event["startTime"] | "";
+                    if (strlen(start) > 0)
+                    {
+                        struct tm event_time = {0};
+                        strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
+                        if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
+                        {
+                            String title = event["title"] | "Untitled";
+                            title = Utils::sanitizeString(title);
+                            lv_obj_t *btn = lv_list_add_btn(events_list, NULL, title.c_str());
+                            lv_obj_set_user_data(btn, (void *)(intptr_t)i);
+                            lv_obj_add_event_cb(btn, event_list_item_click_event_cb, LV_EVENT_CLICKED, NULL);
+                        }
+                    }
+                }
+                xSemaphoreGive(data_mutex);
+            }
+            lv_label_set_text(status_label, "Filtered events for selected day");
+
+            lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, LV_PART_MAIN);
+            lv_obj_set_style_border_width(events_list, 0, LV_PART_MAIN);
+            lv_obj_set_style_text_color(events_list, lv_color_hex(0x0B3C5D), LV_PART_MAIN);
+
+            // Style each child item in the list to fix background and text color
+            uint32_t child_count = lv_obj_get_child_cnt(events_list);
+            for (uint32_t i = 0; i < child_count; i++)
+            {
+                lv_obj_t *child = lv_obj_get_child(events_list, i);
+                lv_obj_set_style_bg_opa(child, LV_OPA_TRANSP, LV_PART_MAIN);
+                lv_obj_set_style_border_width(child, 0, LV_PART_MAIN);
+                lv_obj_set_style_text_color(child, lv_color_hex(0x0B3C5D), LV_PART_MAIN);
+            }
+        }
+        else
+        {
+            lv_obj_clear_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
+            // Open modal for new event with date pre-filled and default times 8am-9am
+            char start_time[20];
+            char end_time[20];
+            snprintf(start_time, sizeof(start_time), "%04d-%02d-%02dT08:00:00", current_year, current_month, day);
+            snprintf(end_time, sizeof(end_time), "%04d-%02d-%02dT09:00:00", current_year, current_month, day);
+            is_editing_event = false;
+            show_event_modal(nullptr, start_time, end_time, nullptr, nullptr);
+        }
+    }
 
     static void update_calendar_grid()
     {
@@ -241,7 +256,7 @@ namespace Calendar
 
         // Update month label text
         static const char *month_names[12] = {"January", "February", "March", "April", "May", "June",
-                                             "July", "August", "September", "October", "November", "December"};
+                                              "July", "August", "September", "October", "November", "December"};
         char month_year_str[32];
         snprintf(month_year_str, sizeof(month_year_str), "%s %d", month_names[current_month - 1], current_year);
         lv_label_set_text(month_label, month_year_str);
@@ -575,7 +590,7 @@ namespace Calendar
         fetch_events();
     }
 
-static void refresh_event_cb(lv_event_t *e)
+    static void refresh_event_cb(lv_event_t *e)
     {
         // Update current year and month to current time
         struct tm timeinfo = Utils::getCurrentTime();
@@ -591,67 +606,52 @@ static void refresh_event_cb(lv_event_t *e)
 
     static void update_events_ui(JsonVariant doc)
     {
+        // Remove "no events" image if present
+        static lv_obj_t *no_events_img = nullptr;
+        if (no_events_img)
+        {
+            lv_obj_del(no_events_img);
+            no_events_img = nullptr;
+        }
+
+        // Ensure events list is visible and clean it
+        lv_obj_clear_flag(events_list, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clean(events_list);
 
         // Apply styling similar to notes list
-        lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, LV_PART_MAIN);
-        lv_obj_set_style_border_width(events_list, 0, LV_PART_MAIN);
-        lv_obj_set_style_text_color(events_list, lv_color_hex(0x0B3C5D), LV_PART_MAIN);
+        lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, 0);
+        lv_obj_set_style_border_width(events_list, 0, 0);
 
-        auto&& events_var = doc["items"];
-        if (!events_var.is<JsonArray>())
+        auto &&events_var = doc["items"];
+        if (!events_var.is<JsonArray>() || events_var.as<JsonArray>().size() == 0)
         {
-            lv_list_add_text(events_list, "Nenhum evento encontrado.");
-            lv_label_set_text(status_label, "Nenhum evento.");
+            // Hide the empty list so it doesn't interfere
+            lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
+
+            // Create a sync image in the center of the main screen (optional, can be removed if not needed)
+            no_events_img = lv_img_create(calendar_screen);
+            lv_img_set_src(no_events_img, &lv_img_sync);
+            lv_obj_add_flag(no_events_img, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_align(no_events_img, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_add_event_cb(no_events_img, refresh_event_cb, LV_EVENT_CLICKED, NULL);
+
+            lv_label_set_text(status_label, ""); // Clear status label text
             return;
         }
 
-        auto&& events = events_var.as<JsonArray>();
-
-        if (events.size() == 0)
-        {
-            lv_list_add_text(events_list, "Nenhum evento encontrado.");
-            lv_label_set_text(status_label, "Nenhum evento.");
-            return;
-        }
+        auto &&events = events_var.as<JsonArray>();
 
         for (int i = 0; i < (int)events.size(); i++)
         {
             JsonObject event = events[i].as<JsonObject>();
-            String title = event["title"] | "Sem título";
+            String title = event["title"] | "Untitled";
             title = Utils::sanitizeString(title);
             lv_obj_t *btn = lv_list_add_btn(events_list, NULL, title.c_str());
             lv_obj_set_user_data(btn, (void *)(intptr_t)i);
             lv_obj_add_event_cb(btn, event_list_item_click_event_cb, LV_EVENT_CLICKED, NULL);
-
-            // Set button style to match calendar screen background and text color
-            // Set background and text color for all states and parts to override default styles
-            lv_obj_set_style_bg_color(btn, lv_color_hex(0xFDF5E6), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_bg_color(btn, lv_color_hex(0xFDF5E6), LV_PART_MAIN | LV_STATE_PRESSED);
-            lv_obj_set_style_bg_color(btn, lv_color_hex(0xFDF5E6), LV_PART_MAIN | LV_STATE_FOCUSED);
-            lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_PRESSED);
-            lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_FOCUSED);
-            lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN | LV_STATE_PRESSED);
-            lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN | LV_STATE_FOCUSED);
-            lv_obj_set_style_text_color(btn, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_text_color(btn, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_PRESSED);
-            lv_obj_set_style_text_color(btn, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_FOCUSED);
-
-            // Also style the label inside the button for all states
-            if (lv_obj_get_child_cnt(btn) > 0)
-            {
-                lv_obj_t *label = lv_obj_get_child(btn, 0);
-                lv_obj_set_style_text_color(label, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_DEFAULT);
-                lv_obj_set_style_text_color(label, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_PRESSED);
-                lv_obj_set_style_text_color(label, lv_color_hex(0x0B3C5D), LV_PART_MAIN | LV_STATE_FOCUSED);
-                lv_obj_set_style_bg_opa(label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
-                lv_obj_set_style_bg_opa(label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_PRESSED);
-                lv_obj_set_style_bg_opa(label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_FOCUSED);
-            }
         }
 
+        // Style each child item in the list to fix background and text color
         uint32_t child_count = lv_obj_get_child_cnt(events_list);
         for (uint32_t i = 0; i < child_count; i++)
         {
@@ -768,7 +768,7 @@ static void refresh_event_cb(lv_event_t *e)
         }
     }
 
-inline void init()
+    inline void init()
     {
         LV_LOG_USER("Initializing Google Calendar App");
         data_mutex = xSemaphoreCreateMutex();
@@ -826,9 +826,8 @@ inline void init()
         events_list = lv_list_create(calendar_screen);
         lv_obj_set_size(events_list, 300, 180);
         lv_obj_align(events_list, LV_ALIGN_CENTER, 0, 20);
-        lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, LV_PART_MAIN);
-        lv_obj_set_style_border_width(events_list, 0, LV_PART_MAIN);
-        lv_obj_set_style_text_color(events_list, lv_color_hex(0x0B3C5D), LV_PART_MAIN);
+        lv_obj_set_style_bg_opa(events_list, LV_OPA_TRANSP, 0);
+        lv_obj_set_style_border_width(events_list, 0, 0);
 
         lv_obj_t *add_event_btn = lv_btn_create(calendar_screen);
         lv_obj_set_size(add_event_btn, 40, 40);

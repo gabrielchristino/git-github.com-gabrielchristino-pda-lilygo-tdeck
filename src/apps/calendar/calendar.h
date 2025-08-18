@@ -1055,27 +1055,63 @@ namespace Calendar
 
     inline void handle()
     {
-        if (event_modal_cont && event_title_textarea)
+        if (event_modal_cont)
         {
             char key = Keyboard::get_key();
             if (key > 0)
             {
+                // Determine which textarea is currently focused
+                lv_obj_t *focused_textarea = nullptr;
+                
+                if (event_title_textarea && lv_obj_has_state(event_title_textarea, LV_STATE_FOCUSED)) {
+                    focused_textarea = event_title_textarea;
+                } else if (event_start_textarea && lv_obj_has_state(event_start_textarea, LV_STATE_FOCUSED)) {
+                    focused_textarea = event_start_textarea;
+                } else if (event_end_textarea && lv_obj_has_state(event_end_textarea, LV_STATE_FOCUSED)) {
+                    focused_textarea = event_end_textarea;
+                } else if (event_description_textarea && lv_obj_has_state(event_description_textarea, LV_STATE_FOCUSED)) {
+                    focused_textarea = event_description_textarea;
+                }
+
                 switch (key)
                 {
                 case '\n':
                 case '\r':
-                    event_save_btn_event_cb(nullptr);
+                    // Tab through textareas or save if on last one
+                    if (focused_textarea == event_title_textarea) {
+                        lv_group_focus_obj(event_start_textarea);
+                    } else if (focused_textarea == event_start_textarea) {
+                        lv_group_focus_obj(event_end_textarea);
+                    } else if (focused_textarea == event_end_textarea) {
+                        lv_group_focus_obj(event_description_textarea);
+                    } else if (focused_textarea == event_description_textarea) {
+                        event_save_btn_event_cb(nullptr);
+                    }
                     break;
-                case 8:
-                    lv_textarea_del_char(event_title_textarea);
+                case 8:  // Backspace
+                    if (focused_textarea) {
+                        lv_textarea_del_char(focused_textarea);
+                    }
                     break;
-                case 2:
+                case 2:  // Escape
                     event_cancel_btn_event_cb(nullptr);
                     break;
+                case 9:  // Tab
+                    // Tab through textareas
+                    if (focused_textarea == event_title_textarea) {
+                        lv_group_focus_obj(event_start_textarea);
+                    } else if (focused_textarea == event_start_textarea) {
+                        lv_group_focus_obj(event_end_textarea);
+                    } else if (focused_textarea == event_end_textarea) {
+                        lv_group_focus_obj(event_description_textarea);
+                    } else if (focused_textarea == event_description_textarea) {
+                        lv_group_focus_obj(event_title_textarea);
+                    }
+                    break;
                 default:
-                    if (isprint(key))
+                    if (isprint(key) && focused_textarea)
                     {
-                        lv_textarea_add_char(event_title_textarea, key);
+                        lv_textarea_add_char(focused_textarea, key);
                     }
                     break;
                 }

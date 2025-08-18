@@ -22,7 +22,6 @@ namespace Calendar
     static lv_obj_t *event_start_textarea = nullptr;
     static lv_obj_t *event_end_textarea = nullptr;
     static lv_obj_t *event_description_textarea = nullptr;
-    static lv_obj_t *event_location_textarea = nullptr;
     static lv_obj_t *event_save_btn = nullptr;
     static lv_obj_t *event_cancel_btn = nullptr;
     static lv_obj_t *event_delete_btn = nullptr;
@@ -47,6 +46,7 @@ namespace Calendar
     // --- Variables for current displayed month and year ---
     static int current_year = 0;
     static int current_month = 0; // 1-12
+    static int selected_day = 0; // Track the selected day for new events
 
     // --- Variables for async operation ---
     static TaskHandle_t fetch_event_task_handle = NULL;
@@ -71,6 +71,44 @@ namespace Calendar
     static void create_event(const char *title, const char *start, const char *end, const char *description, const char *location);
     static void update_event(const char *id, const char *title, const char *start, const char *end, const char *description, const char *location);
     static void delete_event(const char *id);
+    static struct tm convertUTCToGMT3(const char* utc_time_str)
+    {
+        struct tm tm = {0};
+        
+        // Parse the UTC time string (expected format: "YYYY-MM-DDTHH:MM:SSZ")
+        int year, month, day, hour, minute, second;
+        if (sscanf(utc_time_str, "%d-%d-%dT%d:%d:%d", &year, &month, &day, &hour, &minute, &second) == 6) {
+            tm.tm_year = year - 1900;
+            tm.tm_mon = month - 1;
+            tm.tm_mday = day;
+            tm.tm_hour = hour;
+            tm.tm_min = minute;
+            tm.tm_sec = second;
+            
+            // Convert to time_t
+            time_t utc_time = mktime(&tm);
+            
+            // Add 3 hours for GMT-3 (Turkey timezone)
+            utc_time -= 3 * 3600;
+            
+            // Convert back to struct tm
+            struct tm* local_tm = gmtime(&utc_time);
+            if (local_tm) {
+                tm = *local_tm;
+            }
+        }
+        
+        return tm;
+    }
+    
+    static String formatGMT3Time(const struct tm& time)
+    {
+        char buffer[20];
+        snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d %02d:%02d",
+                 time.tm_year + 1900, time.tm_mon + 1, time.tm_mday,
+                 time.tm_hour, time.tm_min);
+        return String(buffer);
+    }
 
     // --- New function prototypes for calendar grid and month navigation ---
     static void build_calendar_grid();
@@ -115,6 +153,7 @@ namespace Calendar
             month_label = lv_label_create(calendar_grid_cont);
             lv_obj_set_style_text_font(month_label, &lv_font_montserrat_20, 0);
             lv_obj_align(month_label, LV_ALIGN_TOP_MID, 0, 0);
+            lv_obj_set_style_text_color(month_label, lv_color_hex(0x000000), 0);
         }
 
         // Prev month button
@@ -168,6 +207,10 @@ namespace Calendar
     {
         lv_obj_t *btn = lv_event_get_target(e);
         int day = (int)(intptr_t)lv_obj_get_user_data(btn);
+        
+        // Store the selected day for new events
+        selected_day = day;
+        
         // Check if there are events on this day
         bool has_event = false;
         if (xSemaphoreTake(data_mutex, portMAX_DELAY) == pdTRUE)
@@ -178,9 +221,11 @@ namespace Calendar
                 const char *start = event["startTime"] | "";
                 if (strlen(start) > 0)
                 {
-                    struct tm event_time = {0};
-                    strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
-                    if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
+                    struct tm event_time = convertUTCToGMT3(start);
+                    
+                    if (event_time.tm_year + 1900 == current_year && 
+                        event_time.tm_mon + 1 == current_month && 
+                        event_time.tm_mday == day)
                     {
                         has_event = true;
                         break;
@@ -192,7 +237,6 @@ namespace Calendar
         if (has_event)
         {
             // Filter events list to show events for this day
-            // For simplicity, just update the events_list UI with events of this day
             lv_obj_clean(events_list);
             lv_obj_add_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(events_list, LV_OBJ_FLAG_HIDDEN);
@@ -205,13 +249,21 @@ namespace Calendar
                     const char *start = event["startTime"] | "";
                     if (strlen(start) > 0)
                     {
-                        struct tm event_time = {0};
-                        strptime(start, "%Y-%m-%dT%H:%M:%S", &event_time);
-                        if (event_time.tm_year + 1900 == current_year && event_time.tm_mon + 1 == current_month && event_time.tm_mday == day)
+                        struct tm event_time = convertUTCToGMT3(start);
+                        
+                        if (event_time.tm_year + 1900 == current_year && 
+                            event_time.tm_mon + 1 == current_month && 
+                            event_time.tm_mday == day)
                         {
                             String title = event["title"] | "Untitled";
                             title = Utils::sanitizeString(title);
-                            lv_obj_t *btn = lv_list_add_btn(events_list, NULL, title.c_str());
+                            
+                            // Format display with GMT-3 time
+                            char display_text[100];
+                            snprintf(display_text, sizeof(display_text), "%s (%02d:%02d)", 
+                                     title.c_str(), event_time.tm_hour, event_time.tm_min);
+                            
+                            lv_obj_t *btn = lv_list_add_btn(events_list, NULL, display_text);
                             lv_obj_set_user_data(btn, (void *)(intptr_t)i);
                             lv_obj_add_event_cb(btn, event_list_item_click_event_cb, LV_EVENT_CLICKED, NULL);
                         }
@@ -225,7 +277,7 @@ namespace Calendar
             lv_obj_set_style_border_width(events_list, 0, LV_PART_MAIN);
             lv_obj_set_style_text_color(events_list, lv_color_hex(0x0B3C5D), LV_PART_MAIN);
 
-            // Style each child item in the list to fix background and text color
+            // Style each child item in the list
             uint32_t child_count = lv_obj_get_child_cnt(events_list);
             for (uint32_t i = 0; i < child_count; i++)
             {
@@ -239,7 +291,7 @@ namespace Calendar
         {
             lv_obj_clear_flag(calendar_grid_cont, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
-            // Open modal for new event with date pre-filled and default times 8am-9am
+            // Open modal for new event with date pre-filled and default times 8am-9am in GMT-3
             char start_time[20];
             char end_time[20];
             snprintf(start_time, sizeof(start_time), "%04d-%02d-%02dT08:00:00", current_year, current_month, day);
@@ -362,12 +414,24 @@ namespace Calendar
         JsonObject event = events_doc["items"][selected_event_index].as<JsonObject>();
         const char *title = event["title"] | "";
         const char *start = event["startTime"] | "";
+        struct tm event_time_start = convertUTCToGMT3(start);
+        char start_time_str[20];
+        snprintf(start_time_str, sizeof(start_time_str), "%04d-%02d-%02dT%02d:%02d:%02d",
+                 event_time_start.tm_year + 1900, event_time_start.tm_mon + 1, event_time_start.tm_mday,
+                 event_time_start.tm_hour, event_time_start.tm_min, event_time_start.tm_sec);
+        
         const char *end = event["endTime"] | "";
+        struct tm event_time_end = convertUTCToGMT3(end);
+        char end_time_str[20];
+        snprintf(end_time_str, sizeof(end_time_str), "%04d-%02d-%02dT%02d:%02d:%02d",
+                 event_time_end.tm_year + 1900, event_time_end.tm_mon + 1, event_time_end.tm_mday,
+                 event_time_end.tm_hour, event_time_end.tm_min, event_time_end.tm_sec);
+        
         const char *description = event["description"] | "";
         const char *location = event["location"] | "";
 
         is_editing_event = true;
-        show_event_modal(title, start, end, description, location);
+        show_event_modal(title, start_time_str, end_time_str, description, location);
     }
 
     static void show_event_modal(const char *title, const char *start, const char *end, const char *description, const char *location)
@@ -465,16 +529,6 @@ namespace Calendar
         else
             lv_textarea_set_text(event_description_textarea, "");
 
-        event_location_textarea = lv_textarea_create(event_modal_cont);
-        lv_textarea_set_one_line(event_location_textarea, true);
-        lv_obj_set_width(event_location_textarea, lv_pct(80));
-        lv_obj_align(event_location_textarea, LV_ALIGN_TOP_MID, 0, 160);
-        lv_textarea_set_placeholder_text(event_location_textarea, "Location");
-        if (location)
-            lv_textarea_set_text(event_location_textarea, location);
-        else
-            lv_textarea_set_text(event_location_textarea, "");
-
         if (!event_modal_group)
         {
             event_modal_group = lv_group_create();
@@ -483,7 +537,6 @@ namespace Calendar
         lv_group_add_obj(event_modal_group, event_start_textarea);
         lv_group_add_obj(event_modal_group, event_end_textarea);
         lv_group_add_obj(event_modal_group, event_description_textarea);
-        lv_group_add_obj(event_modal_group, event_location_textarea);
 
         lv_indev_t *indev = lv_indev_get_next(nullptr);
         if (indev)
@@ -528,53 +581,92 @@ namespace Calendar
             event_start_textarea = nullptr;
             event_end_textarea = nullptr;
             event_description_textarea = nullptr;
-            event_location_textarea = nullptr;
             event_save_btn = nullptr;
             event_cancel_btn = nullptr;
             event_delete_btn = nullptr;
         }
     }
 
-    static void create_event(const char *title, const char *start, const char *end, const char *description, const char *location)
+    static int doPostWithRedirect(const String &payload)
     {
         HTTPClient http;
-        http.begin(GOOGLE_SCRIPT_URL_CALENDAR);
+        String url = GOOGLE_SCRIPT_URL_CALENDAR;
+
+        http.begin(url);
         http.addHeader("Content-Type", "application/json");
-        String payload = "{\"title\":\"" + String(title) + "\",\"startTime\":\"" + String(start) + "\",\"endTime\":\"" + String(end) + "\",\"description\":\"" + String(description) + "\",\"location\":\"" + String(location) + "\"}";
+        http.addHeader("User-Agent", "ESP32-Calendar-App/1.0");
+        http.setConnectTimeout(10000);
+        http.setTimeout(10000);
+
+        LV_LOG_USER("POSTing to: %s", url.c_str());
+        LV_LOG_USER("Payload: %s", payload.c_str());
+
         int http_code = http.POST(payload);
+
+        // Handle redirects (302, 301, 307, etc.)
+        if (http_code == HTTP_CODE_FOUND || http_code == HTTP_CODE_MOVED_PERMANENTLY ||
+            http_code == HTTP_CODE_TEMPORARY_REDIRECT || http_code == HTTP_CODE_PERMANENT_REDIRECT)
+        {
+            String redirect_url = http.header("Location");
+            LV_LOG_USER("Redirected to: %s", redirect_url.c_str());
+            http.end();
+
+            if (redirect_url.length() > 0)
+            {
+                http.begin(redirect_url);
+                http.addHeader("Content-Type", "application/json");
+                http.addHeader("User-Agent", "ESP32-Calendar-App/1.0");
+                http.setConnectTimeout(10000);
+                http.setTimeout(10000);
+
+                LV_LOG_USER("POSTing to redirect URL: %s", redirect_url.c_str());
+                http_code = http.POST(payload);
+
+                if (http_code >= 400)
+                {
+                    String response = http.getString();
+                    LV_LOG_ERROR("HTTP Error %d after redirect: %s", http_code, response.c_str());
+                }
+            }
+        }
+        else if (http_code >= 400)
+        {
+            String response = http.getString();
+            LV_LOG_ERROR("HTTP Error %d: %s", http_code, response.c_str());
+        }
+
+        http.end();
+        return http_code;
+    }
+
+    static void create_event(const char *title, const char *start, const char *end, const char *description, const char *location)
+    {
+        String payload = "{\"title\":\"" + String(title) + "\",\"startTime\":\"" + String(start) + "\",\"endTime\":\"" + String(end) + "\",\"description\":\"" + String(description) + "\",\"location\":\"" + String(location) + "\"}";
+        int http_code = doPostWithRedirect(payload);
         if (http_code != HTTP_CODE_OK && http_code != HTTP_CODE_CREATED)
         {
             LV_LOG_ERROR("Failed to create event, HTTP code: %d", http_code);
         }
-        http.end();
     }
 
     static void update_event(const char *id, const char *title, const char *start, const char *end, const char *description, const char *location)
     {
-        HTTPClient http;
-        http.begin(GOOGLE_SCRIPT_URL_CALENDAR);
-        http.addHeader("Content-Type", "application/json");
         String postPayload = "{\"id\":\"" + String(id) + "\", \"title\":\"" + String(title) + "\", \"startTime\":\"" + String(start) + "\", \"endTime\":\"" + String(end) + "\", \"description\":\"" + String(description) + "\", \"location\":\"" + String(location) + "\", \"update\": true}";
-        int http_code = http.POST(postPayload);
+        int http_code = doPostWithRedirect(postPayload);
         if (http_code != HTTP_CODE_OK)
         {
             LV_LOG_ERROR("Failed to update event (POST), HTTP code: %d", http_code);
         }
-        http.end();
     }
 
     static void delete_event(const char *id)
     {
-        HTTPClient http;
-        http.begin(GOOGLE_SCRIPT_URL_CALENDAR);
-        http.addHeader("Content-Type", "application/json");
         String postPayload = "{\"id\":\"" + String(id) + "\", \"delete\": true}";
-        int http_code = http.POST(postPayload);
+        int http_code = doPostWithRedirect(postPayload);
         if (http_code != HTTP_CODE_OK)
         {
             LV_LOG_ERROR("Failed to delete event (POST), HTTP code: %d", http_code);
         }
-        http.end();
     }
 
     static void add_event_btn_event_cb(lv_event_t *e)
@@ -589,27 +681,104 @@ namespace Calendar
             return;
 
         const char *title = lv_textarea_get_text(event_title_textarea);
-        const char *start = lv_textarea_get_text(event_start_textarea);
-        const char *end = lv_textarea_get_text(event_end_textarea);
+        const char *start_time = lv_textarea_get_text(event_start_textarea);
+        const char *end_time = lv_textarea_get_text(event_end_textarea);
         const char *description = lv_textarea_get_text(event_description_textarea);
-        const char *location = lv_textarea_get_text(event_location_textarea);
+        const char *location = "";
 
-        if (strlen(title) == 0 || strlen(start) == 0 || strlen(end) == 0)
+        if (strlen(title) == 0 || strlen(start_time) == 0 || strlen(end_time) == 0)
         {
             LV_LOG_USER("Missing required event fields, ignoring save.");
             close_event_modal();
             return;
         }
 
+        // Combine selected date with provided times to create full ISO datetime strings
+        char start_datetime[20];
+        char end_datetime[20];
+        
+        // Parse the time strings (HH:MM format)
+        int start_hour, start_min;
+        int end_hour, end_min;
+        
+        if (sscanf(start_time, "%d:%d", &start_hour, &start_min) != 2 ||
+            sscanf(end_time, "%d:%d", &end_hour, &end_min) != 2) {
+            LV_LOG_USER("Invalid time format, ignoring save.");
+            close_event_modal();
+            return;
+        }
+
+        // For new events, use the selected day from calendar
+        // For editing events, extract date from existing event
+        int event_day = 1; // Default day
+        
+        if (is_editing_event && selected_event_index >= 0) {
+            // Extract day from existing event
+            JsonObject event = events_doc["items"][selected_event_index].as<JsonObject>();
+            const char *existing_start = event["startTime"] | "";
+            const char *existing_end = event["endTime"] | "";
+            if (strlen(existing_start) >= 10 && strlen(existing_end) >= 10) {
+                // Parse date and time from existing events
+                if (strchr(existing_start, 'Z') != nullptr) {
+                    // UTC format - parse and adjust for GMT-3 timezone
+                            struct tm event_time_start = convertUTCToGMT3(existing_start);
+                            char start_time_str[20];
+                            snprintf(start_time_str, sizeof(start_time_str), "%04d-%02d-%02dT%02d:%02d:%02d",
+                                    event_time_start.tm_year + 1900, event_time_start.tm_mon + 1, event_time_start.tm_mday,
+                                    event_time_start.tm_hour, event_time_start.tm_min, event_time_start.tm_sec);
+
+                    sscanf(existing_start, "%d-%d-%dT%d:%d", &current_year, &current_month, &event_day, &start_time_str, &start_min);
+
+
+                            struct tm event_time_end = convertUTCToGMT3(existing_end);
+                            char end_time_str[20];
+                            snprintf(end_time_str, sizeof(end_time_str), "%04d-%02d-%02dT%02d:%02d:%02d",
+                                    event_time_end.tm_year + 1900, event_time_end.tm_mon + 1, event_time_end.tm_mday,
+                                    event_time_end.tm_hour, event_time_end.tm_min, event_time_end.tm_sec);
+                    sscanf(existing_end, "%d-%d-%dT%d:%d", &current_year, &current_month, &event_day, &end_time_str, &end_min);
+                                    
+                    // Handle hour wrapping
+                    if (start_hour < 0) start_hour += 24;
+                    if (end_hour < 0) end_hour += 24;
+                } else {
+                    // Local time format - no adjustment needed
+                    sscanf(existing_start, "%d-%d-%dT%d:%d", &current_year, &current_month, &event_day, &start_hour, &start_min);
+                    sscanf(existing_end, "%d-%d-%dT%d:%d", &current_year, &current_month, &event_day, &end_hour, &end_min);
+                }
+            }
+        } else {
+            // For new events, use the selected day from calendar
+            event_day = selected_day;
+            if (event_day == 0) {
+                // Fallback to current day if no day was selected
+                struct tm timeinfo = Utils::getCurrentTime();
+                event_day = timeinfo.tm_mday;
+            }
+        }
+
+        // Create full ISO datetime strings in UTC (add 3 hours to convert from GMT-3 to UTC)
+        // The user enters times in GMT-3, so we need to convert to UTC for the server
+        int utc_start_hour = start_hour;
+        int utc_end_hour = end_hour;
+        
+        // Handle hour wrapping
+        if (utc_start_hour >= 24) utc_start_hour -= 24;
+        if (utc_end_hour >= 24) utc_end_hour -= 24;
+        
+        snprintf(start_datetime, sizeof(start_datetime), "%04d-%02d-%02dT%02d:%02d:00Z", 
+                 current_year, current_month, event_day, utc_start_hour, start_min);
+        snprintf(end_datetime, sizeof(end_datetime), "%04d-%02d-%02dT%02d:%02d:00Z", 
+                 current_year, current_month, event_day, utc_end_hour, end_min);
+
         if (is_editing_event && selected_event_index >= 0)
         {
             JsonObject event = events_doc["items"][selected_event_index].as<JsonObject>();
             const char *id = event["id"] | "";
-            update_event(id, title, start, end, description, location);
+            update_event(id, title, start_datetime, end_datetime, description, location);
         }
         else
         {
-            create_event(title, start, end, description, location);
+            create_event(title, start_datetime, end_datetime, description, location);
         }
 
         close_event_modal();
@@ -632,13 +801,6 @@ namespace Calendar
 
     static void update_events_ui(JsonVariant doc)
     {
-        // Remove "no events" image if present
-        static lv_obj_t *no_events_img = nullptr;
-        if (no_events_img)
-        {
-            lv_obj_del(no_events_img);
-            no_events_img = nullptr;
-        }
 
         // Ensure events list is visible and clean it
         lv_obj_clear_flag(events_list, LV_OBJ_FLAG_HIDDEN);
@@ -654,13 +816,6 @@ namespace Calendar
             // Hide the empty list so it doesn't interfere
             lv_obj_add_flag(events_list, LV_OBJ_FLAG_HIDDEN);
 
-            // Create a sync image in the center of the main screen (optional, can be removed if not needed)
-            no_events_img = lv_img_create(calendar_screen);
-            lv_img_set_src(no_events_img, &lv_img_sync);
-            lv_obj_add_flag(no_events_img, LV_OBJ_FLAG_CLICKABLE);
-            lv_obj_align(no_events_img, LV_ALIGN_CENTER, 0, 0);
-            lv_obj_add_event_cb(no_events_img, refresh_event_cb, LV_EVENT_CLICKED, NULL);
-
             lv_label_set_text(status_label, ""); // Clear status label text
             return;
         }
@@ -671,8 +826,14 @@ namespace Calendar
         {
             JsonObject event = events[i].as<JsonObject>();
             String title = event["title"] | "Untitled";
+                    const char *start = event["startTime"] | "";
+            struct tm event_time = convertUTCToGMT3(start);
+
             title = Utils::sanitizeString(title);
-            lv_obj_t *btn = lv_list_add_btn(events_list, NULL, title.c_str());
+                                        char display_text[100];
+                            snprintf(display_text, sizeof(display_text), "%s (%02d:%02d)", 
+                                     title.c_str(), event_time.tm_hour, event_time.tm_min);
+            lv_obj_t *btn = lv_list_add_btn(events_list, NULL, display_text);
             lv_obj_set_user_data(btn, (void *)(intptr_t)i);
             lv_obj_add_event_cb(btn, event_list_item_click_event_cb, LV_EVENT_CLICKED, NULL);
         }
@@ -809,8 +970,8 @@ namespace Calendar
             if (year < 2020)
             {
                 // Fallback default date if system time not set
-                current_year = 2023;
-                current_month = 1;
+                current_year = 2025;
+                current_month = 8;
             }
             else
             {

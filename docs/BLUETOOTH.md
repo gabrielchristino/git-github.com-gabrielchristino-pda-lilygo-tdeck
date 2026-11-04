@@ -129,7 +129,7 @@ apagados a pedido do usuário para refazer o cadastro; isso não comprova ainda
 a reconexão alternada com dois hosts disponíveis.
 
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe -m platformio run -e tdeck
+python -m platformio run -e tdeck
 ./tools/flash.ps1 -Port COM4 -SkipBuild
 ```
 

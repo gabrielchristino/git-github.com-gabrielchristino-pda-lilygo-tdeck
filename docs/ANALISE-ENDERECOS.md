@@ -88,8 +88,8 @@ nem verificou a presença de um cartão SD no aparelho.
   foi usado somente como geometria do rio para definir as faixas.
 
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/maps/analyze_addresses.py
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/maps/analyze_addresses.py --repack
+python tools/maps/analyze_addresses.py
+python tools/maps/analyze_addresses.py --repack
 ```
 
 O primeiro comando usa o ZIP já baixado e processa toda a cidade em streaming;

@@ -129,7 +129,7 @@ tecla, com confirmação `PDA INPUT OK`.
 Dentro de `pda-os`, com USB conectado:
 
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/device.py --port COM4 gps --seconds 45
+python tools/device.py --port COM4 gps --seconds 45
 ```
 
 O comando consulta a cada 2 segundos. `LOCK=1 FRESH=1` confirma fluxo NMEA

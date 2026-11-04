@@ -102,8 +102,8 @@ aproximado, com GPS ainda sem posição válida.
 Usa a análise CNEFE já existente em `build/maps/`:
 
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/maps/analyze_interpolation.py --tolerances 50
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/maps/analyze_interpolation.py --export build/maps/pinheiros-interpolation-50m.bin
+python tools/maps/analyze_interpolation.py --tolerances 50
+python tools/maps/analyze_interpolation.py --export build/maps/pinheiros-interpolation-50m.bin
 ./tests/run.ps1
 ```
 

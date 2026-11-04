@@ -27,10 +27,10 @@ Use a porta real e uma identidade copiada de `bt-peers`. `bt-manage` e
 `bt-select` exigem o app Bluetooth aberto. `restart` reinicia o **T-Deck**.
 Estas ferramentas não reiniciam o dongle Bluetooth/Wi-Fi do computador.
 
-`device.py` requer pyserial. Nesta máquina ele está no Python do PlatformIO:
+`device.py` requer pyserial. Use um ambiente Python com essa dependência instalada:
 
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/device.py --help
+python tools/device.py --help
 ```
 
 ## Testes e reprodução dos recursos

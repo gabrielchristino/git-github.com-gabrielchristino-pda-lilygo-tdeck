@@ -99,15 +99,19 @@ capturas `map-test-*` são evidência de teste, não leituras do aparelho.
 
 ## Reproduzir os dados
 
+Para substituir o recorte incluído, siga [Como usar o mapa de outra região](TROCAR-REGIAO-MAPA.md).
+A troca exige gerar os vetores e recompilar; a base de números de imóveis é
+separada e também precisa ser substituída ou desativada conforme o guia.
+
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/maps/build_pinheiros.py --download
+python tools/maps/build_pinheiros.py --download
 ```
 
 Isso consulta uma única região no Overpass e guarda JSON de origem em
 `build/maps/pinheiros-osm.json`. Para repetir apenas a conversão offline:
 
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe tools/maps/build_pinheiros.py
+python tools/maps/build_pinheiros.py
 ```
 
 Saídas: `src/core/map_data.inc` e `data/maps/pinheiros.json`. O segundo registra

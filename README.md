@@ -41,6 +41,8 @@ o gerenciador de destinos Bluetooth.
 
 [Jogos e controles](docs/JOGOS.md): funcionam por teclado, sem depender do trackball.
 [Mapa vetorial e controles](docs/MAPA.md): funciona sem imagens, internet ou SD.
+[Como usar o mapa de outra região](docs/TROCAR-REGIAO-MAPA.md): escolher o recorte,
+gerar os dados e recompilar, com ou sem numeração aproximada de imóveis.
 [Teclado e mouse Bluetooth](docs/BLUETOOTH.md): pareamento, controles e limitações.
 [Validação dos jogos](docs/VALIDACAO-JOGOS.md), incluindo migração dos dados e
 retomada das partidas após reiniciar o aparelho.
@@ -131,10 +133,10 @@ A atualização grava **somente o aplicativo em 0x10000**, preservando o mapa de
 partições, bootloader e arquivos do PDA. Uma instalação inicial completa requer
 o mapa de partições da placa; não use esse comando para migrar outro layout.
 
-Nesta máquina, se `pio` não estiver no PATH:
+Se `pio` não estiver no PATH, use o Python do ambiente onde o PlatformIO foi instalado:
 
 ```powershell
-& C:/Users/gabri/.platformio/penv/Scripts/python.exe -m platformio run -e tdeck
+python -m platformio run -e tdeck
 ```
 
 As bibliotecas e a definição de placa estão incluídas em `lib/` e `boards/`,

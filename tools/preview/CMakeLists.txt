@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.16)
+project(pda_preview LANGUAGES C CXX)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
+set(LVGL_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/lvgl")
+file(GLOB_RECURSE LVGL_SOURCES CONFIGURE_DEPENDS "${LVGL_ROOT}/src/*.c")
+add_library(lvgl_host STATIC ${LVGL_SOURCES})
+target_include_directories(lvgl_host PUBLIC "${LVGL_ROOT}")
+target_compile_definitions(lvgl_host PUBLIC "LV_CONF_PATH=${CMAKE_CURRENT_SOURCE_DIR}/lv_conf_host.h")
+file(GLOB PDA_CORE CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/*.cpp")
+file(GLOB PDA_UI CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../src/ui/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/../../src/ui/*.c")
+file(GLOB PDA_APPS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../src/apps/*.cpp")
+add_executable(pda_preview main.cpp ${PDA_CORE} ${PDA_UI} ${PDA_APPS})
+set(GAME_CORPUS "${CMAKE_CURRENT_BINARY_DIR}/game_text_corpus.h")
+add_custom_command(OUTPUT "${GAME_CORPUS}"
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/game_font_corpus.py" --output "${GAME_CORPUS}"
+    DEPENDS game_font_corpus.py ../../src/apps/games.cpp ../../src/apps/more_games.cpp ../../src/core/games.cpp ../../src/core/more_games.cpp
+    VERBATIM)
+target_sources(pda_preview PRIVATE "${GAME_CORPUS}")
+target_include_directories(pda_preview PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories(pda_preview PRIVATE ../../include)
+target_link_libraries(pda_preview PRIVATE lvgl_host)

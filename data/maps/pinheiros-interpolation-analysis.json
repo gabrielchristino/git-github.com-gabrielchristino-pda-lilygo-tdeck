@@ -1,0 +1,62 @@
+{
+  "source": "Existing IBGE CNEFE 2022 municipal GeoJSON 2024-09-10, levels 1/2 only",
+  "source_analysis": "data/maps/pinheiros-address-analysis.json",
+  "counts": {
+    "input_addresses": 965523,
+    "conflicting_coordinates_excluded": 0,
+    "excluded_modifier_or_large_number": 100769,
+    "one_meter_boundary_quantization_clamped": 20,
+    "numeric_addresses_after_dedup": 864754,
+    "street_cep_parity_groups": 50899
+  },
+  "tests": [
+    {
+      "tolerance_m": 50,
+      "held_out_addresses": 172927,
+      "training_addresses": 691827,
+      "unambiguous_without_cep": {
+        "count": 134303,
+        "median_m": 14.3,
+        "p90_m": 54.8,
+        "p95_m": 100.6,
+        "p99_m": 352.6,
+        "within_100m_percent": 94.95,
+        "within_200m_percent": 97.99
+      },
+      "unambiguous_coverage_percent": 77.66,
+      "known_cep_diagnostic": {
+        "count": 144968,
+        "median_m": 14.3,
+        "p90_m": 51.6,
+        "p95_m": 89.0,
+        "p99_m": 241.3,
+        "within_100m_percent": 95.72,
+        "within_200m_percent": 98.62
+      },
+      "outside_fitted_ranges_without_cep": 23648,
+      "ambiguous_without_cep": 14976,
+      "full_model": {
+        "total_bytes": 2674319,
+        "streets": 20846,
+        "chains": 70182,
+        "anchors": 223204,
+        "street_index_bytes": 250152,
+        "street_string_bytes": 446255,
+        "chain_bytes": 561456,
+        "postcode_bytes": 77192,
+        "anchor_bytes": 1339224,
+        "file": "build\\maps\\pinheiros-interpolation-50m.bin",
+        "sha256": "7bb0bc514b23128db4334c3cc6362180e7338670bd941a237ab3e60da53e9434"
+      },
+      "fits_current_app_before_new_code": true
+    }
+  ],
+  "limitations": [
+    "Held-out errors are relative to census coordinates, not independently verified entrances.",
+    "Pure integer house numbers 1..65535 only; modifiers are excluded.",
+    "No extrapolation outside observed range; same parity only.",
+    "Ambiguous street/number ranges need CEP or multiple displayed results.",
+    "Current source scope is Sao Paulo municipality inside the existing map bbox.",
+    "This script changes neither firmware nor device."
+  ]
+}

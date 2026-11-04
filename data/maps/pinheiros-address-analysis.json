@@ -1,0 +1,199 @@
+{
+  "generated_utc": "2026-10-28T20:50:22.735900+00:00",
+  "source_url": "https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/GeoJSON/Municipio_20240910/qg_810_endereco_Munic3550308.json.zip",
+  "source_archive_bytes": 229529525,
+  "source_sha256": "7544179d48de3ed77f4f4ed18448c6e7e39e87114777209af8be8db41d367b39",
+  "source_scope": "Municipality of Sao Paulo (3550308), Censo 2022, GeoJSON 2024-09-10",
+  "bbox_south_west_north_east": [
+    -23.755,
+    -46.81,
+    -23.52,
+    -46.59
+  ],
+  "counts": {
+    "municipal_records": 5689391,
+    "inside_bbox": 2596333,
+    "with_street_and_number": 2543518,
+    "missing_or_nonpositive_number": 52815
+  },
+  "geocoding_levels_in_bbox": {
+    "1": 1978799,
+    "3": 73755,
+    "4": 29838,
+    "2": 513440,
+    "6": 501
+  },
+  "deduplicated_levels": {
+    "1": 958012,
+    "3": 3201,
+    "4": 12760,
+    "2": 7511,
+    "6": 251
+  },
+  "deduplicated_keys": "canonical street + complete number text + CEP; apartments/complements ignored",
+  "groups_with_coordinate_bbox_diagonal_above_100m": 9714,
+  "all_levels": {
+    "records": 981735,
+    "street_names": 20899,
+    "record_bytes": 15707760,
+    "street_index_bytes": 334384,
+    "street_strings_bytes": 447426,
+    "number_strings_bytes": 413159,
+    "total_bytes": 16902761,
+    "zlib_whole_file_bytes_for_comparison_only": 6838140,
+    "file": "build\\maps\\pinheiros-addresses-cnefe.bin",
+    "sha256": "11301608995298eb810169b6bb9fcbf09ae15f89d7842361baa1726d0e014c35",
+    "indexed_block_compression": {
+      "records": 981735,
+      "street_names": 20899,
+      "blocks": 22997,
+      "max_uncompressed_record_buffer": 1536,
+      "total_bytes": 8925959,
+      "compressed_record_bytes": 7187422,
+      "index_bytes": 877920,
+      "string_bytes": 860585,
+      "file": "build\\maps\\pinheiros-addresses-cnefe-blocks.bin",
+      "sha256": "570ea9d6be1e10e2c0bdda3895c4eaf133bcc8b31fc439c22b25089e4a39b4f0",
+      "status": "Prototype measured and roundtrip-checked on host; ESP32 reader not implemented."
+    }
+  },
+  "original_or_modified_levels_1_2": {
+    "records": 965523,
+    "street_names": 20846,
+    "record_bytes": 15448368,
+    "street_index_bytes": 333536,
+    "street_strings_bytes": 446255,
+    "number_strings_bytes": 396057,
+    "total_bytes": 16624248,
+    "zlib_whole_file_bytes_for_comparison_only": 6729104,
+    "file": "build\\maps\\pinheiros-addresses-cnefe-level12.bin",
+    "sha256": "590f997f088c29e830208a2ec3d1e3a6eccfd2aee4b6900ad553fcbc3350643b",
+    "indexed_block_compression": {
+      "records": 965523,
+      "street_names": 20846,
+      "blocks": 22883,
+      "max_uncompressed_record_buffer": 1536,
+      "total_bytes": 8802630,
+      "compressed_record_bytes": 7085706,
+      "index_bytes": 874580,
+      "string_bytes": 842312,
+      "file": "build\\maps\\pinheiros-addresses-cnefe-level12-blocks.bin",
+      "sha256": "df4d5d3236c7e82ad4fbcdbafb1ea76ceba2fa1478f6cc53d936b74331d7b90f",
+      "status": "Prototype measured and roundtrip-checked on host; ESP32 reader not implemented."
+    }
+  },
+  "firmware_bytes": 3610816,
+  "app_partition_bytes": 6553600,
+  "remaining_app_bytes": 2942784,
+  "fits_all_levels_without_code": false,
+  "fits_levels_1_2_without_code": false,
+  "limitations": [
+    "Only Sao Paulo municipality, not all adjacent municipalities touched by the map bbox.",
+    "2022 census addresses are not guaranteed current or complete.",
+    "Geocoding levels 3-6 are estimates or larger-area references.",
+    "Apartment coordinates may be modified; point is not a verified building entrance.",
+    "Same street/number/CEP can have multiple coordinate clusters; inspect wide groups before importing.",
+    "The zlib number is comparison only: no on-device block index or decompressor is implemented.",
+    "No firmware or device change was made by this analysis.",
+    "Indexed block files are host prototypes, not an implemented firmware feature."
+  ],
+  "corridor_1km_quality_1_2": {
+    "records": 34010,
+    "street_names": 1243,
+    "record_bytes": 544160,
+    "street_index_bytes": 19888,
+    "street_strings_bytes": 26632,
+    "number_strings_bytes": 34875,
+    "total_bytes": 625587,
+    "zlib_whole_file_bytes_for_comparison_only": 255151,
+    "file": "build\\maps\\pinheiros-addresses-cnefe-corridor1km.bin",
+    "sha256": "87ae97c7000a8d250380103d3a592262366b5ff2e8b23cd967850560d86f3b3e",
+    "distance_to_named_river_meters": 1000,
+    "geometry_segments": 196,
+    "river_geometry_length_meters": 18775,
+    "geocoding_levels": [
+      1,
+      2
+    ],
+    "scope": "Only the existing map bbox and Sao Paulo municipality",
+    "indexed_block_compression": {
+      "records": 34010,
+      "street_names": 1243,
+      "blocks": 1279,
+      "max_uncompressed_record_buffer": 1536,
+      "total_bytes": 373551,
+      "compressed_record_bytes": 261572,
+      "index_bytes": 50440,
+      "string_bytes": 61507,
+      "file": "build\\maps\\pinheiros-addresses-cnefe-corridor1km-blocks.bin",
+      "sha256": "68f40ca24dac4c3d6f3014674259eca48e7d79be21614067335125521553b0a4",
+      "status": "Prototype measured and roundtrip-checked on host; ESP32 reader not implemented."
+    }
+  },
+  "corridor_2km_quality_1_2": {
+    "records": 103650,
+    "street_names": 2991,
+    "record_bytes": 1658400,
+    "street_index_bytes": 47856,
+    "street_strings_bytes": 63507,
+    "number_strings_bytes": 69277,
+    "total_bytes": 1839072,
+    "zlib_whole_file_bytes_for_comparison_only": 743404,
+    "file": "build\\maps\\pinheiros-addresses-cnefe-corridor2km.bin",
+    "sha256": "57dd70bc9f9eb645309bbd400181732453749c6d00faab11f3808526e83f9923",
+    "distance_to_named_river_meters": 2000,
+    "geometry_segments": 196,
+    "river_geometry_length_meters": 18775,
+    "geocoding_levels": [
+      1,
+      2
+    ],
+    "scope": "Only the existing map bbox and Sao Paulo municipality",
+    "indexed_block_compression": {
+      "records": 103650,
+      "street_names": 2991,
+      "blocks": 3153,
+      "max_uncompressed_record_buffer": 1536,
+      "total_bytes": 1038928,
+      "compressed_record_bytes": 783232,
+      "index_bytes": 122880,
+      "string_bytes": 132784,
+      "file": "build\\maps\\pinheiros-addresses-cnefe-corridor2km-blocks.bin",
+      "sha256": "d9456f582e1f6c6400b70234f4107488c32b941fddcfc2b8dc38b3d3d3d903af",
+      "status": "Prototype measured and roundtrip-checked on host; ESP32 reader not implemented."
+    }
+  },
+  "corridor_3km_quality_1_2": {
+    "records": 178654,
+    "street_names": 4896,
+    "record_bytes": 2858464,
+    "street_index_bytes": 78336,
+    "street_strings_bytes": 104557,
+    "number_strings_bytes": 103261,
+    "total_bytes": 3144650,
+    "zlib_whole_file_bytes_for_comparison_only": 1274551,
+    "file": "build\\maps\\pinheiros-addresses-cnefe-corridor3km.bin",
+    "sha256": "3b3f1286da74668fb64302f3acd41717860db182ec62bd5b60ba5d31a5d2c74a",
+    "distance_to_named_river_meters": 3000,
+    "geometry_segments": 196,
+    "river_geometry_length_meters": 18775,
+    "geocoding_levels": [
+      1,
+      2
+    ],
+    "scope": "Only the existing map bbox and Sao Paulo municipality",
+    "indexed_block_compression": {
+      "records": 178654,
+      "street_names": 4896,
+      "blocks": 5201,
+      "max_uncompressed_record_buffer": 1536,
+      "total_bytes": 1762067,
+      "compressed_record_bytes": 1352277,
+      "index_bytes": 201940,
+      "string_bytes": 207818,
+      "file": "build\\maps\\pinheiros-addresses-cnefe-corridor3km-blocks.bin",
+      "sha256": "e1a56f89ddaa9cc1a7ba5c1496a627649ba2275e42055c082ce6397234b795de",
+      "status": "Prototype measured and roundtrip-checked on host; ESP32 reader not implemented."
+    }
+  }
+}

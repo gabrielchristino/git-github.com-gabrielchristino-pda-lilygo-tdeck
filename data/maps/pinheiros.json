@@ -1,0 +1,33 @@
+{
+  "region": "São Paulo / Marginal Pinheiros, Morumbi, Santo Amaro e Interlagos",
+  "bbox_south_west_north_east": [
+    -23.755,
+    -46.81,
+    -23.52,
+    -46.59
+  ],
+  "origin_lat_lon": [
+    -23.64,
+    -46.7
+  ],
+  "features": 62283,
+  "points": 206351,
+  "named_features": 21478,
+  "osm_ways": 62261,
+  "osm_timestamp": "2026-10-28T19:32:37Z",
+  "source_sha256": "70f2d3f286e53ed7a09358f78e72ab97acfa473624a109285dc5b14eb3537235",
+  "endpoint": "https://overpass-api.de/api/interpreter",
+  "query": "[out:json][timeout:120];(way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|residential|unclassified|living_street|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|cycleway)$\"](-23.755,-46.81,-23.52,-46.59);way[\"waterway\"~\"^(river|canal)$\"](-23.755,-46.81,-23.52,-46.59);way[\"railway\"~\"^(rail|subway|light_rail)$\"](-23.755,-46.81,-23.52,-46.59););out tags geom;",
+  "coordinate_units": "meters, local equirectangular projection, east/south positive",
+  "simplification_tolerance_m": 2,
+  "license": "ODbL 1.0",
+  "spatial_index": {
+    "cell_meters": 2000,
+    "columns": 12,
+    "rows": 14,
+    "references": 68698
+  },
+  "attribution": "© OpenStreetMap contributors",
+  "license_url": "https://www.openstreetmap.org/copyright",
+  "generated_utc": "2026-11-04T00:09:48.841548+00:00"
+}

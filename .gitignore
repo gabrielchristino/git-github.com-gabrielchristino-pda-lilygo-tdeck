@@ -1,19 +1,11 @@
-# Secrets - Arquivos com chaves de API, senhas, etc.
-# Adicione aqui qualquer arquivo que contenha informações sensíveis.
-/src/secrets.h
-
-# Arquivos de configuração do PlatformIO e VSCode
-# Geralmente são específicos do ambiente local do desenvolvedor.
 .pio/
+.pio-core/
+build/
 .vscode/
-
-# Artefatos de compilação e binários
-# Não devem ser versionados pois são gerados a partir do código fonte.
-*.o
-*.a
-*.so
-*.elf
-*.bin
-*.hex
-*.uf2
-firmware.bin
+__pycache__/
+backups/
+.env
+.env.*
+!.env.example
+*.pyc
+.DS_Store

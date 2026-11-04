@@ -1,0 +1,256 @@
+font	codepoint	result	width	height	resolved_font	context
+pda_font	U+0020	OK	0	0	pda_font	ASCII and UI text
+pda_font	U+0021	OK	2	10	pda_font	ASCII and UI text
+pda_font	U+0022	OK	4	4	pda_font	ASCII and UI text
+pda_font	U+0023	OK	10	10	pda_font	ASCII and UI text
+pda_font	U+0024	OK	7	13	pda_font	ASCII and UI text
+pda_font	U+0025	OK	12	10	pda_font	ASCII and UI text
+pda_font	U+0026	OK	11	10	pda_font	ASCII and UI text
+pda_font	U+0027	OK	2	4	pda_font	ASCII and UI text
+pda_font	U+0028	OK	4	12	pda_font	ASCII and UI text
+pda_font	U+0029	OK	4	12	pda_font	ASCII and UI text
+pda_font	U+002A	OK	7	6	pda_font	ASCII and UI text
+pda_font	U+002B	OK	10	9	pda_font	ASCII and UI text
+pda_font	U+002C	OK	2	3	pda_font	ASCII and UI text
+pda_font	U+002D	OK	5	1	pda_font	ASCII and UI text
+pda_font	U+002E	OK	2	2	pda_font	ASCII and UI text
+pda_font	U+002F	OK	5	12	pda_font	ASCII and UI text
+pda_font	U+0030	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0031	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0032	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0033	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0034	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0035	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0036	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0037	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0038	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0039	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+003A	OK	2	7	pda_font	ASCII and UI text
+pda_font	U+003B	OK	2	8	pda_font	ASCII and UI text
+pda_font	U+003C	OK	10	8	pda_font	ASCII and UI text
+pda_font	U+003D	OK	10	4	pda_font	ASCII and UI text
+pda_font	U+003E	OK	10	8	pda_font	ASCII and UI text
+pda_font	U+003F	OK	6	10	pda_font	ASCII and UI text
+pda_font	U+0040	OK	13	12	pda_font	ASCII and UI text
+pda_font	U+0041	OK	10	10	pda_font	ASCII and UI text
+pda_font	U+0042	OK	8	10	pda_font	ASCII and UI text
+pda_font	U+0043	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0044	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0045	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0046	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0047	OK	10	10	pda_font	ASCII and UI text
+pda_font	U+0048	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0049	OK	2	10	pda_font	ASCII and UI text
+pda_font	U+004A	OK	3	13	pda_font	ASCII and UI text
+pda_font	U+004B	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+004C	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+004D	OK	11	10	pda_font	ASCII and UI text
+pda_font	U+004E	OK	8	10	pda_font	ASCII and UI text
+pda_font	U+004F	OK	11	10	pda_font	ASCII and UI text
+pda_font	U+0050	OK	7	10	pda_font	ASCII and UI text
+pda_font	U+0051	OK	11	12	pda_font	ASCII and UI text
+pda_font	U+0052	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0053	OK	8	10	pda_font	ASCII and UI text
+pda_font	U+0054	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0055	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0056	OK	10	10	pda_font	ASCII and UI text
+pda_font	U+0057	OK	14	10	pda_font	ASCII and UI text
+pda_font	U+0058	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+0059	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+005A	OK	9	10	pda_font	ASCII and UI text
+pda_font	U+005B	OK	3	12	pda_font	ASCII and UI text
+pda_font	U+005C	OK	5	12	pda_font	ASCII and UI text
+pda_font	U+005D	OK	4	12	pda_font	ASCII and UI text
+pda_font	U+005E	OK	10	4	pda_font	ASCII and UI text
+pda_font	U+005F	OK	8	1	pda_font	ASCII and UI text
+pda_font	U+0060	OK	4	3	pda_font	ASCII and UI text
+pda_font	U+0061	OK	8	8	pda_font	ASCII and UI text
+pda_font	U+0062	OK	7	11	pda_font	ASCII and UI text
+pda_font	U+0063	OK	7	8	pda_font	ASCII and UI text
+pda_font	U+0064	OK	8	11	pda_font	ASCII and UI text
+pda_font	U+0065	OK	8	8	pda_font	ASCII and UI text
+pda_font	U+0066	OK	5	11	pda_font	ASCII and UI text
+pda_font	U+0067	OK	8	11	pda_font	ASCII and UI text
+pda_font	U+0068	OK	7	11	pda_font	ASCII and UI text
+pda_font	U+0069	OK	2	11	pda_font	ASCII and UI text
+pda_font	U+006A	OK	3	14	pda_font	ASCII and UI text
+pda_font	U+006B	OK	7	11	pda_font	ASCII and UI text
+pda_font	U+006C	OK	2	11	pda_font	ASCII and UI text
+pda_font	U+006D	OK	12	8	pda_font	ASCII and UI text
+pda_font	U+006E	OK	7	8	pda_font	ASCII and UI text
+pda_font	U+006F	OK	8	8	pda_font	ASCII and UI text
+pda_font	U+0070	OK	7	11	pda_font	ASCII and UI text
+pda_font	U+0071	OK	8	11	pda_font	ASCII and UI text
+pda_font	U+0072	OK	5	8	pda_font	ASCII and UI text
+pda_font	U+0073	OK	7	8	pda_font	ASCII and UI text
+pda_font	U+0074	OK	6	10	pda_font	ASCII and UI text
+pda_font	U+0075	OK	7	8	pda_font	ASCII and UI text
+pda_font	U+0076	OK	8	8	pda_font	ASCII and UI text
+pda_font	U+0077	OK	11	8	pda_font	ASCII and UI text
+pda_font	U+0078	OK	8	8	pda_font	ASCII and UI text
+pda_font	U+0079	OK	8	11	pda_font	ASCII and UI text
+pda_font	U+007A	OK	7	8	pda_font	ASCII and UI text
+pda_font	U+007B	OK	7	13	pda_font	ASCII and UI text
+pda_font	U+007C	OK	2	14	pda_font	ASCII and UI text
+pda_font	U+007D	OK	7	13	pda_font	ASCII and UI text
+pda_font	U+007E	OK	10	2	pda_font	ASCII and UI text
+pda_font	U+00E7	OK	7	11	pda_font	game source literal
+pda_font	U+00EA	OK	8	12	pda_font	game source literal
+pda_font	U+00F3	OK	8	12	pda_font	game source literal
+pda_font	U+00E3	OK	8	11	pda_font	game source literal
+pda_font	U+00ED	OK	4	12	pda_font	game source literal
+pda_font	U+00E1	OK	8	12	pda_font	game source literal
+pda_font	U+00FA	OK	7	12	pda_font	game source literal
+pda_font	U+00F5	OK	8	11	pda_font	game source literal
+pda_font	U+00E2	OK	8	12	pda_font	game source literal
+pda_font	U+00E9	OK	8	12	pda_font	game source literal
+pda_font	U+00B7	OK	2	2	pda_font	game source literal
+pda_font	U+00F4	OK	8	12	pda_font	word bank
+pda_font	U+00C1	OK	10	13	pda_font	Portuguese reference
+pda_font	U+00C0	OK	10	13	pda_font	Portuguese reference
+pda_font	U+00C2	OK	10	13	pda_font	Portuguese reference
+pda_font	U+00C3	OK	10	13	pda_font	Portuguese reference
+pda_font	U+00C9	OK	7	13	pda_font	Portuguese reference
+pda_font	U+00CA	OK	7	13	pda_font	Portuguese reference
+pda_font	U+00CD	OK	3	13	pda_font	Portuguese reference
+pda_font	U+00D3	OK	11	13	pda_font	Portuguese reference
+pda_font	U+00D4	OK	11	13	pda_font	Portuguese reference
+pda_font	U+00D5	OK	11	13	pda_font	Portuguese reference
+pda_font	U+00DA	OK	9	13	pda_font	Portuguese reference
+pda_font	U+00DC	OK	9	12	pda_font	Portuguese reference
+pda_font	U+00C7	OK	9	13	pda_font	Portuguese reference
+pda_font	U+00E0	OK	8	12	pda_font	Portuguese reference
+pda_font	U+00FC	OK	7	11	pda_font	Portuguese reference
+pda_font	U+2026	OK	12	2	pda_font	Portuguese reference
+pda_font	U+00D7	OK	8	8	pda_font	Portuguese reference
+Montserrat12	U+0041	OK	10	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0042	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0043	OK	9	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0044	OK	9	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0045	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0046	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0047	OK	9	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0048	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0049	OK	2	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+004A	OK	6	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+004B	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+004C	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+004D	OK	10	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+004E	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+004F	OK	10	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0050	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0051	OK	10	12	Montserrat12	small board symbols and HUD
+Montserrat12	U+0052	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0053	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0054	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0055	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0056	OK	10	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0057	OK	14	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0058	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0059	OK	9	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+005A	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0061	OK	7	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0062	OK	7	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+0063	OK	7	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0064	OK	8	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+0065	OK	7	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0066	OK	5	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+0067	OK	8	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+0068	OK	7	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+0069	OK	3	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+006A	OK	5	13	Montserrat12	small board symbols and HUD
+Montserrat12	U+006B	OK	7	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+006C	OK	2	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+006D	OK	11	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+006E	OK	7	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+006F	OK	8	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0070	OK	7	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+0071	OK	8	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+0072	OK	4	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0073	OK	6	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0074	OK	5	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0075	OK	7	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0076	OK	8	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0077	OK	11	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0078	OK	7	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0079	OK	8	10	Montserrat12	small board symbols and HUD
+Montserrat12	U+007A	OK	6	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+0030	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0031	OK	4	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0032	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0033	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0034	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0035	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0036	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0037	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0038	OK	8	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0039	OK	7	9	Montserrat12	small board symbols and HUD
+Montserrat12	U+0040	OK	12	12	Montserrat12	small board symbols and HUD
+Montserrat12	U+002B	OK	7	6	Montserrat12	small board symbols and HUD
+Montserrat12	U+003E	OK	7	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+002A	OK	5	5	Montserrat12	small board symbols and HUD
+Montserrat12	U+002F	OK	6	13	Montserrat12	small board symbols and HUD
+Montserrat12	U+002E	OK	3	2	Montserrat12	small board symbols and HUD
+Montserrat12	U+003A	OK	3	7	Montserrat12	small board symbols and HUD
+Montserrat12	U+002D	OK	4	2	Montserrat12	small board symbols and HUD
+Montserrat12	U+0020	OK	0	0	Montserrat12	small board symbols and HUD
+Montserrat12	U+0024	OK	7	13	Montserrat12	small board symbols and HUD
+Montserrat16	U+0041	OK	13	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0042	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0043	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0044	OK	12	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0045	OK	9	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0046	OK	9	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0047	OK	12	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0048	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0049	OK	3	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+004A	OK	8	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+004B	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+004C	OK	9	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+004D	OK	13	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+004E	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+004F	OK	13	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0050	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0051	OK	14	15	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0052	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0053	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0054	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0055	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0056	OK	13	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0057	OK	18	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0058	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0059	OK	12	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+005A	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0030	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0031	OK	5	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0032	OK	9	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0033	OK	9	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0034	OK	11	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0035	OK	9	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0036	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0037	OK	9	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0038	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat16	U+0039	OK	10	12	Montserrat16	legacy word grid and 2048
+Montserrat28	U+0030	OK	17	20	Montserrat28	2048 and code digits
+Montserrat28	U+0031	OK	8	20	Montserrat28	2048 and code digits
+Montserrat28	U+0032	OK	16	20	Montserrat28	2048 and code digits
+Montserrat28	U+0033	OK	15	20	Montserrat28	2048 and code digits
+Montserrat28	U+0034	OK	18	20	Montserrat28	2048 and code digits
+Montserrat28	U+0035	OK	16	20	Montserrat28	2048 and code digits
+Montserrat28	U+0036	OK	16	20	Montserrat28	2048 and code digits
+Montserrat28	U+0037	OK	16	20	Montserrat28	2048 and code digits
+Montserrat28	U+0038	OK	16	20	Montserrat28	2048 and code digits
+Montserrat28	U+0039	OK	16	20	Montserrat28	2048 and code digits
+pda_font	U+F015	OK	16	13	Montserrat14	visible game label
+Montserrat12	U+0025	OK	10	9	Montserrat12	visible game label
+pda_font	U+F00B	OK	14	13	Montserrat14	visible game label
+pda_font	U+F304	OK	15	15	Montserrat14	visible game label
+pda_font	U+F03E	OK	14	11	Montserrat14	visible game label
+pda_font	U+F0F3	OK	13	15	Montserrat14	visible game label
+pda_font	U+F095	OK	15	15	Montserrat14	visible game label
+pda_font	U+F067	OK	13	13	Montserrat14	visible game label
+pda_font	U+F11C	OK	16	11	Montserrat14	visible game label
+pda_font	U+F013	OK	14	15	Montserrat14	visible game label
+pda_font	U+F04B	OK	13	15	Montserrat14	visible game label
+pda_font	U+F124	OK	16	15	Montserrat14	visible game label
+# 254 unique font/codepoint pairs; 25554 glyph checks; 4909 visible labels; zero missing/clipped glyphs

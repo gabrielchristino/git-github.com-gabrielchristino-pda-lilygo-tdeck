@@ -1,5 +1,6 @@
 .pio/
 .pio-core/
+.pio-tools/
 build/
 .vscode/
 __pycache__/

@@ -6,6 +6,7 @@ from serial.tools import list_ports
 
 COMMANDS = {
     'status': ('PDA STATUS', 'PDA READY='),
+    'memory': ('PDA MEM', 'MEM DONE'),
     'save': ('PDA SAVE', 'PDA SAVED'),
     'home': ('PDA HOME', 'PDA HOME OK'),
     'restart': ('PDA RESTART', 'PDA RESTARTING'),

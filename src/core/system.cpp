@@ -10,7 +10,7 @@ LoadResult System::begin(StorageBackend *backend, Platform *platform, uint32_t n
         if (clockValid() && state.timerDeadline) {
             state.timerMs = uint64_t(std::max<int64_t>(0, state.timerDeadline - utc())) * 1000;
             state.timerRunning = state.timerMs > 0;
-            if (!state.timerRunning) notify("Temporizador concluido.");
+            if (!state.timerRunning) timerFinished();
         } else { state.timerRunning = false; state.timerDeadline = 0; }
         changed();
     }
@@ -34,14 +34,18 @@ void System::configure() { if (platform_) platform_->configure(state.preferences
 bool System::setClock(int64_t epoch) {
     if (!validCivil(fromUtc(epoch, 0)) || !platform_ || !platform_->setUtc(epoch)) return false;
     state.lastKnownUtc = epoch;
-    if (state.timerRunning) state.timerDeadline = epoch + int64_t((state.timerMs + 999) / 1000);
+    if (state.timerRunning) { state.timerDeadline = epoch + int64_t((state.timerMs + 999) / 1000); ++timerRevision_; }
     changed(true);
     return true;
 }
 void System::startTimer(uint64_t ms) {
+    ++timerRevision_;
     state.timerMs = std::min<uint64_t>(ms, 31536000000ULL); state.timerRunning = state.timerMs > 0;
     state.timerDeadline = clockValid() && state.timerRunning ? utc() + int64_t((state.timerMs + 999) / 1000) : 0;
     changed(true);
+}
+void System::pauseTimer() {
+    ++timerRevision_;state.timerRunning=false;state.timerDeadline=0;changed(true);
 }
 void System::toggleStopwatch() { state.stopwatchRunning = !state.stopwatchRunning; changed(true); }
 void System::notify(const std::string &message) {
@@ -50,6 +54,15 @@ void System::notify(const std::string &message) {
         notification_ += message;
     }
     if (platform_ && state.preferences.sound) platform_->alert();
+}
+void System::timerFinished() {
+    ++timerRevision_;
+    timerAlert_ = true;lastTimerAlert_ = now_;
+    notify("Temporizador concluido.");
+}
+void System::dismissNotification() {
+    notification_.clear();timerAlert_ = false;
+    if(platform_) platform_->stopAlert();
 }
 bool System::exportData(std::string &message) { return platform_ && platform_->exportData(state, message); }
 void System::tick(uint32_t now) {
@@ -60,8 +73,11 @@ void System::tick(uint32_t now) {
         if (state.stopwatchMs == 315360000000ULL) state.stopwatchRunning = false;
     }
     if (state.timerRunning) {
-        if (elapsed >= state.timerMs) { state.timerMs = 0; state.timerRunning = false; state.timerDeadline = 0; notify("Temporizador concluido."); changed(true); }
+        if (elapsed >= state.timerMs) { state.timerMs = 0; state.timerRunning = false; state.timerDeadline = 0; timerFinished(); changed(true); }
         else state.timerMs -= elapsed;
+    }
+    if(timerAlert_ && state.preferences.sound && platform_ && uint32_t(now-lastTimerAlert_)>=1500) {
+        lastTimerAlert_=now;platform_->alert();
     }
     if ((state.stopwatchRunning || state.timerRunning) && uint32_t(now - lastRuntimeSave_) >= 5000) {
         lastRuntimeSave_ = now; changed(true);

@@ -6,6 +6,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
+#ifdef PDA_CHAT
+#include "pda/intent_pt.h"
+#include <fstream>
+#include <iterator>
+static std::vector<uint8_t> chatWeights;
+static pda::ai::IntentPt chatModel;
+static bool classifyChat(const char *text,int &label) {
+    pda::ai::IntentPt::Prediction p;
+    if (!chatModel.predict(text,p)) return false;
+    label=p.label;return true;
+}
+static bool chatTextPresent(lv_obj_t *root,const char *text) {
+    if (lv_obj_check_type(root,&lv_label_class) && strstr(lv_label_get_text(root),text)) return true;
+    for (uint32_t i=0;i<lv_obj_get_child_cnt(root);++i) if (chatTextPresent(lv_obj_get_child(root,i),text)) return true;
+    return false;
+}
+#endif
 class Memory : public pda::StorageBackend {
 public:
     std::vector<uint8_t> slots[2];
@@ -18,6 +35,10 @@ public:
 class Host : public pda::Platform {
 public:
     int64_t epoch = 1792425600;
+    unsigned alerts=0;
+    unsigned stops=0;
+    void alert() override {++alerts;}
+    void stopAlert() override {++stops;}
     int64_t utc() const override { return epoch; }
     bool setUtc(int64_t e) override { epoch=e; return true; }
 };
@@ -221,6 +242,15 @@ int main() {
     const bool sound=system.state.preferences.sound;
     type("s"); input(pda::Action::Activate,0,0,13);
     require(system.state.preferences.sound!=sound,"settings keyboard selects and activates buttons");
+    const bool soundAfterKeyboard=system.state.preferences.sound;
+    if(system.state.preferences.sound) click("Som: ligado");
+    const auto alertsBeforeTest=platform.alerts;
+    click("Testar som");require(platform.alerts==alertsBeforeTest,"muted sound test does not call speaker");click("Voltar");
+    click("Som: desligado");click("Testar som");
+    require(platform.alerts==alertsBeforeTest+1&&!system.notification().empty(),"sound test button routes through system alert");
+    save("settings-sound-test.ppm");input(pda::Action::Activate,0,0,13);
+    require(system.notification().empty(),"sound test notification dismisses normally");
+    if(!soundAfterKeyboard) click("Som: ligado");
     launch("jogos"); require(system.state.session.app==10 && system.state.session.view==8,"games launcher"); save("games-menu.ppm");
     type("1"); type("wasd"); require(system.state.games.slots[0].moves>0,"2048 keyboard moves");
     save("game-2048.ppm"); click("Ajuda"); require(findButton(lv_scr_act(),"Partida"),"2048 stats moved into help"); save("game-2048-stats.ppm"); click("Voltar"); type("u"); const auto mergeBoard=system.state.games.slots[0].board;
@@ -612,6 +642,163 @@ int main() {
     save("bluetooth.ppm");
     home(); require(!remoteEnabled,"holding ball exits and disables Bluetooth");
     puts("Bluetooth app routing, controls and persistence OK");
+    {
+        auto &soundSystem=*systemState;
+        const auto ms=soundSystem.state.timerMs;const auto deadline=soundSystem.state.timerDeadline;
+        const bool running=soundSystem.state.timerRunning,sound=soundSystem.state.preferences.sound;
+        soundSystem.dismissNotification();pump();soundSystem.state.preferences.sound=true;
+        for(unsigned way=0;way<3;++way) {
+            const auto before=platform.alerts,stops=platform.stops;
+            soundSystem.startTimer(1);pump(2);
+            require(soundSystem.timerAlertActive()&&!soundSystem.notification().empty(),"timer opens latched alert");
+            pump(1500);require(platform.alerts==before+2,"timer repeats while modal stays open");
+            if(way==0) input(pda::Action::Activate,0,0,13);
+            else if(way==1) {
+                pda::CenterButton ball;const auto now=milliseconds;
+                ball.update(true,now);ball.update(true,now+25);ball.update(false,now+50);
+                require(ball.update(false,now+75)==pda::Action::Activate,"ball click maps to activation");
+                input(pda::Action::Activate);
+            } else {
+                auto *ok=findButton(lv_layer_top(),"OK");require(ok!=nullptr,"timer modal has touch acknowledgment");
+                lv_event_send(ok,LV_EVENT_CLICKED,nullptr);pump();
+            }
+            require(!soundSystem.timerAlertActive()&&soundSystem.notification().empty()&&platform.stops==stops+1,"acknowledgment stops audio and closes timer modal");
+            const auto after=platform.alerts;pump(3000);require(platform.alerts==after,"dismissed timer never restarts sound");
+        }
+        soundSystem.state.timerMs=ms;soundSystem.state.timerDeadline=deadline;
+        soundSystem.state.timerRunning=running;soundSystem.state.preferences.sound=sound;soundSystem.changed(true);
+    }
+#ifdef PDA_CHAT
+    std::ifstream weights(PDA_CHAT_MODEL_PATH,std::ios::binary);
+    chatWeights.assign(std::istreambuf_iterator<char>(weights),{});
+    require(chatModel.begin(chatWeights.data(),chatWeights.size()),"chat model loads");
+    shell->setChatClassifier(classifyChat);
+    auto &chatSystem=*systemState;
+    const auto notesBeforeChat=chatSystem.state.notes.size(),contactsBeforeChat=chatSystem.state.contacts.size(),eventsBeforeChat=chatSystem.state.appointments.size();
+    const auto timerBeforeChat=chatSystem.state.timerMs;const bool runningBeforeChat=chatSystem.state.timerRunning;
+    const auto deadlineBeforeChat=chatSystem.state.timerDeadline;
+    pda::BatteryStats chatBattery;chatBattery.sample(3900);shell->setBatteryStats(chatBattery);
+    launch("assistente");require(shell->chatActive(),"chat launches from real catalog");
+    require(chatSystem.state.session.app<=12 && chatSystem.state.session.home,"chat never persists unsupported app id");
+    save("chat-welcome.ppm");
+    shell->setChatClassifier(nullptr);
+    type("pode mostrar o nivel da bateria?");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"Bateria estimada: 66%"),"explicit battery variants work without neural acceptance");
+    type("poderia me dizer a hora?");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"Agora sao"),"explicit time variants work without neural acceptance");
+    click("Limpar");
+    type("por favor, crie uma nota sobre comprar pao");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"comprar pao")&&chatTextPresent(lv_scr_act(),"Digite sim"),"conversational note variant uses original payload");
+    type("deixa pra la");click("Enviar");
+    require(chatSystem.state.notes.size()==notesBeforeChat,"conversational cancellation preserves notes");
+    type("cadastre contato Oficina com o telefone 11999998888");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"Criar contato:")&&chatTextPresent(lv_scr_act(),"11999998888"),"natural contact variant previews typed API");
+    type("cancelar");click("Enviar");
+    type("inicie uma contagem regressiva de vinte e cinco segundos");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"0 min 25 s"),"spoken compound timer through UI");
+    type("cancelar");click("Enviar");
+    require(chatSystem.state.contacts.size()==contactsBeforeChat&&chatSystem.state.timerDeadline==deadlineBeforeChat&&chatSystem.state.timerRunning==runningBeforeChat,"new variants do not bypass confirmation");
+    shell->setChatClassifier(classifyChat);
+    click("Limpar");
+    type("wasd$");require(shell->chatDraftBytes()==5,"chat preserves WASD as text");save("chat-draft.ppm");
+    input(pda::Action::ToggleNavigation);require(shell->chatDraftBytes()==0,"chat clear shortcut");
+    type("o que voce faz?");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"Posso fazer no PDA"),"chat capability overview");save("chat-help.ppm");
+    type("mais");click("Enviar");require(chatTextPresent(lv_scr_act(),"Ajuda: notas"),"chat help continuation");
+    click("Limpar");
+    type("quando cai dia 8 de novembro de 2026");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"08/11/2026: domingo"),"calendar weekday reply through real chat");save("chat-calendar-weekday.ppm");
+    type("do dia 1 de novembro ate 25 de dezembro sao quantos dias");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"54 dias corridos"),"calendar interval through real chat");save("chat-calendar-interval.ppm");
+    type("dia 8 de novembro de 2026 mais 5 dias uteis");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"13/11/2026 (sexta-feira)"),"business-day result through real chat");save("chat-calendar-business.ppm");
+    require(chatSystem.state.notes.size()==notesBeforeChat&&chatSystem.state.appointments.size()==eventsBeforeChat,"calendar questions do not create documents");
+    click("Limpar");
+    type("crie um evento para dia 5 de novembro de 2026 para comprar pao");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"Qual horário?"),"natural event asks missing time in chat");
+    require(chatSystem.state.appointments.size()==eventsBeforeChat,"missing time never creates event");
+    type("9h");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"05/11/2026 09:00")&&chatTextPresent(lv_scr_act(),"Digite sim"),"time followup presents event confirmation");
+    save("chat-event-natural.ppm");
+    type("cancelar");click("Enviar");
+    require(chatSystem.state.appointments.size()==eventsBeforeChat,"natural event cancellation leaves agenda unchanged");
+    click("Limpar");
+    type("Quanto tenho de bateria?");input(pda::Action::Activate,0,0,13);
+    require(shell->chatLastLabel()==1 && shell->chatDraftBytes()==0,"chat sends and recognizes battery");
+    require(chatTextPresent(lv_scr_act(),"Bateria estimada: 66%"),"chat battery answer uses actual supplied telemetry");
+    save("chat-battery.ppm");
+    input(pda::Action::Activate,0,0,13);require(shell->chatMessageCount()==3,"empty chat does not send");
+    type("timer 45s");click("Enviar");require(shell->chatLastLabel()==6,"touch send uses real model");
+    save("chat-timer.ppm");
+    require(chatSystem.state.timerMs<=timerBeforeChat && chatSystem.state.timerRunning==runningBeforeChat && chatSystem.state.timerDeadline==deadlineBeforeChat,"chat never starts or extends timer");
+    type("cancelar");input(pda::Action::Activate,0,0,13);
+    type("timer de 5 segundos");click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"0 min 5 s"),"timer with connector and full unit reaches action preview");
+    require(chatSystem.state.timerDeadline==deadlineBeforeChat && chatSystem.state.timerRunning==runningBeforeChat,"timer variation still waits for confirmation");
+    save("chat-timer-variations.ppm");
+    type("cancelar");input(pda::Action::Activate,0,0,13);
+    type("anote comprar madeira");input(pda::Action::Activate,0,0,13);
+    require(chatSystem.state.notes.size()==notesBeforeChat && chatSystem.state.contacts.size()==contactsBeforeChat && chatSystem.state.appointments.size()==eventsBeforeChat,"chat does not create documents");
+    require(chatTextPresent(lv_scr_act(),"comprar madeira"),"note preview shows actual payload");
+    save("chat-note-preview.ppm");
+    type("sim");input(pda::Action::Activate,0,0,13);
+    require(chatSystem.state.notes.size()==notesBeforeChat+1 && chatSystem.state.notes.back().text=="comprar madeira","chat confirmation invokes shared note service");
+    save("chat-note-saved.ppm");
+    type("sim");input(pda::Action::Activate,0,0,13);
+    require(chatSystem.state.notes.size()==notesBeforeChat+1,"repeated confirmation cannot duplicate note");
+    const auto chatNoteId=chatSystem.state.notes.back().id;
+    type(("le nota "+std::to_string(notesBeforeChat+1)).c_str());click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"comprar madeira"),"chat reads actual stored note");
+    type("edita essa nota: comprar parafusos");click("Enviar");
+    require(chatSystem.state.notes.back().text=="comprar madeira","chat edit remains a preview");
+    save("chat-note-edit.ppm");type("sim");click("Enviar");
+    require(chatSystem.state.notes.back().text=="comprar parafusos","chat edits selected note");
+    type("renomeia essa nota para Compras do projeto");click("Enviar");type("sim");click("Enviar");
+    require(chatSystem.state.notes.back().title=="Compras do projeto","chat renames selected note");
+    type("apaga essa nota");click("Enviar");
+    require(chatSystem.state.notes.size()==notesBeforeChat+1,"chat deletion waits for confirmation");save("chat-note-delete.ppm");
+    type("cancelar");click("Enviar");
+    type(("exclui nota "+std::to_string(notesBeforeChat+1)).c_str());click("Enviar");type("sim");click("Enviar");
+    require(chatSystem.state.notes.size()==notesBeforeChat&&!pda::findById(chatSystem.state.notes,chatNoteId),"chat deletes only selected note");
+    type("evento Teste Chat 18/11/2026 09:00");click("Enviar");type("sim");click("Enviar");
+    require(chatSystem.state.appointments.size()==eventsBeforeChat+1,"chat creates fixture event");
+    const auto chatEventId=chatSystem.state.appointments.back().id;
+    type(("le evento "+std::to_string(eventsBeforeChat+1)).c_str());click("Enviar");
+    require(chatTextPresent(lv_scr_act(),"Teste Chat"),"chat reads actual event");
+    type("remarca esse evento para 19/11/2026 10:30");click("Enviar");type("sim");click("Enviar");
+    require(pda::formatCivil(chatSystem.state.appointments.back().start,chatSystem.state.preferences.timezoneMinutes)=="19/11/2026 10:30","chat reschedules event");
+    type("edita esse evento: levar documentos");click("Enviar");type("sim");click("Enviar");
+    require(chatSystem.state.appointments.back().detail=="levar documentos","chat edits event detail");
+    type("exclui esse evento");click("Enviar");type("sim");click("Enviar");
+    require(chatSystem.state.appointments.size()==eventsBeforeChat&&!pda::findById(chatSystem.state.appointments,chatEventId),"chat deletes selected event");
+    type("timer 30s");click("Enviar");type("sim");click("Enviar");
+    type("altera o timer para 5 minutos");click("Enviar");type("sim");click("Enviar");
+    require(chatSystem.state.timerRunning&&chatSystem.state.timerMs<=300000&&chatSystem.state.timerMs>299000,"chat changes remaining timer duration");
+    type("cancela o timer");click("Enviar");type("sim");click("Enviar");
+    require(!chatSystem.state.timerRunning&&!chatSystem.state.timerMs,"chat cancels timer");
+    chatSystem.state.timerMs=timerBeforeChat;chatSystem.state.timerRunning=runningBeforeChat;chatSystem.state.timerDeadline=deadlineBeforeChat;
+    type("q horas sao");input(pda::Action::Activate,0,0,13);
+    char chatTime[40];const auto chatLocal=pda::fromUtc(chatSystem.utc(),chatSystem.state.preferences.timezoneMinutes);
+    snprintf(chatTime,sizeof(chatTime),"Agora sao %02d:%02d",chatLocal.hour,chatLocal.minute);
+    require(chatTextPresent(lv_scr_act(),chatTime),"chat time answer uses device clock and timezone");
+    const auto savedEpoch=platform.epoch;platform.epoch=0;
+    type("q horas sao");input(pda::Action::Activate,0,0,13);
+    require(chatTextPresent(lv_scr_act(),"não tem um horário válido"),"chat does not invent unavailable time");platform.epoch=savedEpoch;
+    for(int i=0;i<8;++i) {type("q horas sao");input(pda::Action::Activate,0,0,13);}
+    require(shell->chatMessageCount()==12,"chat history is bounded");
+    type("rascunho");home();launch("assistente");require(shell->chatDraftBytes()==8,"unsent draft survives app switch in RAM");
+    click("Limpar");require(shell->chatMessageCount()==1 && shell->chatDraftBytes()==0,"touch clear resets chat only");
+    type(std::string(81,'x').c_str());require(shell->chatDraftBytes()==80,"chat physical input bounded to 80 bytes");
+    click("Limpar");std::string multibyte;for(int i=0;i<41;++i) multibyte+="á";fill(0,multibyte.c_str());
+    input(pda::Action::Activate,0,0,13);
+    require(shell->chatMessageCount()==1 && shell->chatDraftBytes()==82,"UTF8 byte overflow is rejected without discarding draft");
+    click("Limpar");type("anote chat-privado-abc908");input(pda::Action::Activate,0,0,13);
+    require(chatSystem.save(),"save while chat open succeeds");
+    for (const auto &slot:memory.slots) require(std::string(slot.begin(),slot.end()).find("chat-privado-abc908")==std::string::npos,"chat transcript absent from persisted data");
+    click("Limpar");home();require(chatSystem.save(),"chat-safe session saves");
+    pda::System chatReboot;require(chatReboot.begin(&memory,&platform,0)==pda::LoadResult::Loaded,"chat session remains compatible with original storage schema");
+    puts("chat: real model, keyboard/touch, note confirmation, transient history and storage compatibility OK");
+#endif
     fontReferenceCaptures();
     unsigned unique=0; for(const auto &entry:checkedGlyphs) unique+=unsigned(entry.second.size());
     fprintf(glyphReport,"# %u unique font/codepoint pairs; %u glyph checks; %u visible labels; zero missing/clipped glyphs\n",unique,glyphChecks,labelChecks);

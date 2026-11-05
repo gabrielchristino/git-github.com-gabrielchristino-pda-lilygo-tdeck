@@ -1,5 +1,13 @@
 # Uso de memória e compactação
 
+[Aprendizados de memória e IA local](APRENDIZADOS.md), incluindo
+reservas verificadas de 2,5–4,5 MiB e os custos do mapa e salvamento.
+
+**Atualização de 04/11/2026:** o [layout sem OTA](PARTICOES.md) amplia a partição
+do aplicativo para 13.107.200 bytes (12,5 MiB). A compilação atual usa 5.448.133
+bytes (41,6%), com 7.659.067 bytes livres. As medições abaixo são históricas,
+anteriores à mudança de partições.
+
 Medição de 03/11/2026, ambiente PlatformIO `tdeck`, mesma partição de aplicativo
 de 6.553.600 bytes. O percentual da compilação corresponde à partição do
 aplicativo, não a toda a flash de 16 MB e nem à RAM do ESP32-S3.
@@ -118,8 +126,8 @@ inteiras idênticas encontrou apenas 8 bytes reaproveitáveis.
 
 Mover bases para SD mudaria o requisito de funcionamento sem cartão. Reduzir
 o recorte ou simplificar mais as linhas e apoios mudaria cobertura ou precisão.
-Aumentar a partição liberaria margem para o aplicativo, mas não reduziria o
-binário e exigiria uma migração do layout usado pelo aparelho.
+A ampliação da partição já foi realizada no [layout sem OTA](PARTICOES.md);
+ela libera margem para o aplicativo, sem reduzir o binário.
 
 A imagem foi instalada na COM4 com hash verificado. A validação por USB e
 seus limites estão em [Validação no T-Deck](VALIDACAO-MEMORIA.md).

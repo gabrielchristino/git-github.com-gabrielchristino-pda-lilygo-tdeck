@@ -1,0 +1,21 @@
+{
+  "model_revision": 6,
+  "feature_profile": 5,
+  "sources": {
+    "tools/ai/text_features.py": "b78bf885e5c07a582c50ec881148a828c6d50782cbca7e30d772bd6e493161f6",
+    "tools/ai/policy.py": "8977fa81bc624d840bd5f0ad506c0a101db289ba98e5e893d9d2f34f0266c268",
+    "src/core/intent_pt.cpp": "5de8fd441f8e9f9b10d17c937e57ad9c804c91abd3a2d65de49da4163fed1666",
+    "include/pda/intent_pt.h": "878e43083e6774eb7a7a84544b242a777e1e775b8e07d3f556ba33bc868b1b97",
+    "src/core/intent_pt_folds.inc": "a08fe4b593edc550403a0589f56cad4229268dcb3abf4257ec3a7d5d78edd024",
+    "src/core/intent_pt_short.inc": "06192402d8de320be2a9a2dd8db5c1ed33f75e93ef20653f82a82714e95552fc"
+  },
+  "assets": {
+    "data/ai/intent_pt.bin": "828bf12fe7bffc840b2659ad431861354bcc0625af8ab6229c57446a543d0064",
+    "data/ai/intent_pt.json": "982c68ef58ff685e4a004cde507096ec86bb1d56bfb453ab7f7d47e82f96f717",
+    "data/ai/user_regression.json": "5ef488ad1b1946bb346c7cf483f91163b351725dbbd8d3460c19e9cfc15d7ab5",
+    "data/ai/dataset/manifest.json": "f7c9f14ce7701cb2305cdd650dacde1203d81a049ec6cd90d81ca6115bfcf568",
+    "data/ai/dataset/train.jsonl": "128d55ee06d60978a90c636d9af5e3d9db695974454002b56f88aadcededb858",
+    "data/ai/dataset/calibration.jsonl": "d4828ecb84bd05202630eb241d4918148534c27780dcf711047dc3dc0921b3b2",
+    "data/ai/dataset/evaluation.jsonl": "816db253cd5b85f1fa9fa3ed0081ae346d120ab1bad14001946cd2d09c05354a"
+  }
+}

@@ -2,7 +2,7 @@
 #include <stddef.h>
 
 namespace pda {
-enum class AppId { Agenda, Calendar, Notes, Draw, Clock, Contacts, Calculator, Sheet, InputTest, Settings, Games, Map, Bluetooth };
+enum class AppId { Agenda, Calendar, Notes, Draw, Clock, Contacts, Calculator, Sheet, InputTest, Settings, Games, Map, Bluetooth, Chat };
 struct AppInfo {
     AppId id;
     const char *name;

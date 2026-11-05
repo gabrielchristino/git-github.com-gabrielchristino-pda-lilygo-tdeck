@@ -5,7 +5,11 @@
 #include "pda/workspace.h"
 #include "pda/battery.h"
 #include "pda/bluetooth.h"
+#ifdef PDA_CHAT
+#include "pda/assistant.h"
+#endif
 #include <memory>
+#include <cstring>
 
 namespace pda {
 class Shell {
@@ -19,8 +23,33 @@ public:
     void setBatteryStats(const BatteryStats &stats);
     void setBluetoothRemote(const BluetoothRemote &remote) { remote_ = remote; }
     bool openBluetoothPeers();
+#ifdef PDA_CHAT
+    using ChatClassifier = bool (*)(const char *, int &);
+    void setChatClassifier(ChatClassifier classify) { chatClassifier_ = classify; }
+    bool chatActive() const { return current_ && current_->id == AppId::Chat; }
+    size_t chatMessageCount() const { return chatMessages_.size(); }
+    size_t chatDraftBytes() const { return chatInput_ ? strlen(lv_textarea_get_text(chatInput_)) : chatDraft_.size(); }
+    int chatLastLabel() const { return chatLastLabel_; }
+#endif
 private:
-    static constexpr size_t maxApps = 13;
+    static constexpr size_t maxApps = 14;
+#ifdef PDA_CHAT
+    struct ChatMessage { bool user; std::string text; };
+    ChatClassifier chatClassifier_ = nullptr;
+    Assistant assistant_;
+    std::vector<ChatMessage> chatMessages_;
+    std::string chatDraft_;
+    lv_obj_t *chatLog_ = nullptr, *chatInput_ = nullptr, *chatHint_ = nullptr;
+    bool chatSendPending_ = false, chatClearPending_ = false;
+    int chatLastLabel_ = -1;
+    void buildChat();
+    void renderChatMessages();
+    void handleChat(const InputEvent &event);
+    void tickChat();
+    void leaveChat();
+    std::string chatResponse(const char *text);
+    static void chatClicked(lv_event_t *event);
+#endif
     static void remoteClicked(lv_event_t *event);
     void buildRemotePanel();
     void sendRemoteKey(uint8_t usage, uint8_t modifiers = 0);

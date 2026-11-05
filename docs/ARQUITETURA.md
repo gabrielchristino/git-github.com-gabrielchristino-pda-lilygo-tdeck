@@ -131,3 +131,16 @@ como prontas.
 - [littlefs e recuperação após falta de energia](https://github.com/littlefs-project/littlefs).
 - [Fonte DejaVu e licença local](../licenses/DejaVu.txt).
 - [Registro de validação](../VALIDACAO.md).
+
+## Assistente e serviços locais
+
+`src/ui/chat.cpp` mantém a interface e o histórico transitório. O adaptador
+`src/hal/chat_model.cpp` carrega o classificador `src/core/intent_pt.cpp`;
+`src/core/assistant.cpp` interpreta pedidos e chama APIs tipadas de `PdaServices`,
+compartilhando o mesmo `System` dos aplicativos. Alterações ficam pendentes de
+confirmação e são verificadas contra o registro original antes de executar.
+
+`src/core/calendar_math.cpp` implementa consultas de datas sem alterar documentos.
+`src/hal/audio.cpp` fornece áudio I2S não bloqueante; `System` controla a repetição
+do alerta do timer até a dispensa. O histórico do chat e suas ações pendentes
+não mudam o formato dos snapshots. Veja [IA.md](IA.md) e [CHAT.md](CHAT.md).

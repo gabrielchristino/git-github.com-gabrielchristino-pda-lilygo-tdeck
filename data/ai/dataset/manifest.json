@@ -1,0 +1,58 @@
+{
+  "version": 6,
+  "feature_profile": 5,
+  "provenance": "Original synthetic short-input expansion; all known user texts excluded from train/calibration",
+  "limitations": [
+    "Abbreviation normalization and scope checks are explicit rules",
+    "New evaluation authored by developer; not independent human study",
+    "Short/long user pairs are correlated",
+    "No executor or argument extraction"
+  ],
+  "files": {
+    "train.jsonl": {
+      "cases": 22132,
+      "sha256": "128d55ee06d60978a90c636d9af5e3d9db695974454002b56f88aadcededb858",
+      "per_label": {
+        "RECUSAR": 14529,
+        "BATERIA": 493,
+        "HORA": 488,
+        "AGENDA": 988,
+        "CONTATO": 1586,
+        "CALCULO": 466,
+        "TIMER": 1283,
+        "NOTA": 1209,
+        "ABRIR_APP": 1090
+      }
+    },
+    "calibration.jsonl": {
+      "cases": 2152,
+      "sha256": "d4828ecb84bd05202630eb241d4918148534c27780dcf711047dc3dc0921b3b2",
+      "per_label": {
+        "RECUSAR": 737,
+        "CONTATO": 287,
+        "BATERIA": 96,
+        "HORA": 95,
+        "AGENDA": 211,
+        "CALCULO": 92,
+        "TIMER": 232,
+        "NOTA": 194,
+        "ABRIR_APP": 208
+      }
+    },
+    "evaluation.jsonl": {
+      "cases": 112,
+      "sha256": "816db253cd5b85f1fa9fa3ed0081ae346d120ab1bad14001946cd2d09c05354a",
+      "per_label": {
+        "BATERIA": 6,
+        "HORA": 6,
+        "AGENDA": 6,
+        "CONTATO": 6,
+        "CALCULO": 6,
+        "TIMER": 6,
+        "NOTA": 6,
+        "ABRIR_APP": 6,
+        "RECUSAR": 64
+      }
+    }
+  }
+}

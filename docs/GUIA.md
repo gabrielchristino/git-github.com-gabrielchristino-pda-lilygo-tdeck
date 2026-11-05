@@ -1,5 +1,12 @@
 # Usando o PDA
 
+O app **Assistente**, incluído no firmware padrão, consulta e cadastra pelos serviços
+locais, sem abrir outros apps: **Enter** envia, a bola rola o histórico e **Shift + $**
+limpa o chat. Veja [o guia do chat e seus limites](CHAT.md).
+
+Para alertas audíveis, deixe **Ajustes → Som: ligado**. **Testar som** emite o
+mesmo aviso usado pelo timer e pela agenda. Veja [áudio e diagnóstico](AUDIO.md).
+
 ## Navegação
 
 No início, use W/A/S/D ou role a bola e clique/Enter para abrir um aplicativo.

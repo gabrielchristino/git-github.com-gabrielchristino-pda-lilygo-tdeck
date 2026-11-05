@@ -1,4 +1,5 @@
-param([string]$Port = '', [switch]$SkipBuild)
+param([string]$Port = '', [switch]$SkipBuild, [switch]$MigratePartitions)
+$Environment = 'tdeck'
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $pythonPath = Join-Path $env:USERPROFILE '.platformio/penv/Scripts/python.exe'
@@ -7,7 +8,7 @@ if (!(Test-Path -LiteralPath $pythonPath) -or !(Test-Path -LiteralPath $esptoolP
 Push-Location -LiteralPath $projectRoot
 try {
     if (!$SkipBuild) {
-        & $pythonPath -m platformio run -e tdeck
+        & $pythonPath -m platformio run -e $Environment
         if ($LASTEXITCODE -ne 0) { throw 'Falha na compilação; nenhum firmware foi gravado.' }
     }
     if (!$Port) {
@@ -16,9 +17,11 @@ try {
         if ($serialMatches.Count -ne 1) { throw 'Informe -Port COMx: é necessário identificar exatamente um T-Deck.' }
         $Port = $serialMatches[0]
     }
-    $firmwarePath = Join-Path $projectRoot '.pio/build/tdeck/firmware.bin'
+    $firmwarePath = Join-Path $projectRoot ".pio/build/$Environment/firmware.bin"
     if (!(Test-Path -LiteralPath $firmwarePath)) { throw 'Firmware não encontrado.' }
-    # Application only. Keep the existing bootloader, partition map and PDA files.
-    & $pythonPath $esptoolPath --chip esp32s3 --port $Port --baud 921600 --before usb_reset --after hard_reset --connect-attempts 3 write_flash -z --flash_mode keep --flash_freq keep --flash_size keep 0x10000 $firmwarePath
+    # Validate the installed layout before writing. Migration is explicit and backed up.
+    $flashArguments = @('tools/flash_device.py', '--port', $Port, '--esptool', $esptoolPath, '--environment', $Environment)
+    if ($MigratePartitions) { $flashArguments += '--migrate-partitions' }
+    & $pythonPath @flashArguments
     if ($LASTEXITCODE -ne 0) { throw 'Falha na gravação.' }
 } finally { Pop-Location }

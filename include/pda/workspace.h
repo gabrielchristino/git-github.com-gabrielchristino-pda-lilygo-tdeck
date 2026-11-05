@@ -25,7 +25,7 @@ private:
         Field, Symbols, Symbol, CalPrevious, CalNext, CalToday, CalDay, SetClock,
         Stopwatch, ResetStopwatch, SetTimer, ToggleTimer, ResetTimer, Rename,
         Pen, Eraser, ClearCanvas, GridCell, SaveCell, Initialize, Export, SaveSettings,
-        Sound, Composition, SaveNow, Help, Acknowledge, EditSettings, CalMonth,
+        Sound, TestSound, Composition, SaveNow, Help, Acknowledge, EditSettings, CalMonth,
         GameSelect, GameMenu, GameNew, GameHelp, GameHelpTab, GameWarehouseLevel, GameSpecial, GameCell,
         MapZoomIn, MapZoomOut, MapGps, MapReset, MapMenu, MapLabels, MapHelp, MapHome,
         MapSearch, MapFind, MapResult, MapSearchBack, MapAddressResult

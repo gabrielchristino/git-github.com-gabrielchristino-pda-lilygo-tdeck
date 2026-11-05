@@ -1,0 +1,112 @@
+{"family": "v6:evaluation:BATERIA:0", "label": "BATERIA", "source": "authored-before-v6-selection", "text": "qto de bat tenho sobrando?"}
+{"family": "v6:evaluation:BATERIA:1", "label": "BATERIA", "source": "authored-before-v6-selection", "text": "qnt % ainda tenho no pda?"}
+{"family": "v6:evaluation:BATERIA:2", "label": "BATERIA", "source": "authored-before-v6-selection", "text": "Me diz quanto tem de carga na bateria"}
+{"family": "v6:evaluation:BATERIA:3", "label": "BATERIA", "source": "authored-before-v6-selection", "text": "Ver a carga restante do dispositivo"}
+{"family": "v6:evaluation:BATERIA:4", "label": "BATERIA", "source": "authored-before-v6-selection", "text": "Qual percentual de bateria ficou disponível?"}
+{"family": "v6:evaluation:BATERIA:5", "label": "BATERIA", "source": "authored-before-v6-selection", "text": "Checa a bat que ainda sobrou"}
+{"family": "v6:evaluation:HORA:0", "label": "HORA", "source": "authored-before-v6-selection", "text": "q hora ta marcando aqui?"}
+{"family": "v6:evaluation:HORA:1", "label": "HORA", "source": "authored-before-v6-selection", "text": "Q horas o meu relógio indica?"}
+{"family": "v6:evaluation:HORA:2", "label": "HORA", "source": "authored-before-v6-selection", "text": "Preciso ver o horário neste momento"}
+{"family": "v6:evaluation:HORA:3", "label": "HORA", "source": "authored-before-v6-selection", "text": "Queria consultar as horas do aparelho"}
+{"family": "v6:evaluation:HORA:4", "label": "HORA", "source": "authored-before-v6-selection", "text": "Me mostra que horas estão marcando"}
+{"family": "v6:evaluation:HORA:5", "label": "HORA", "source": "authored-before-v6-selection", "text": "Qual horário aparece no relógio do PDA?"}
+{"family": "v6:evaluation:AGENDA:0", "label": "AGENDA", "source": "authored-before-v6-selection", "text": "q q tenho pra amanhã de manhã?"}
+{"family": "v6:evaluation:AGENDA:1", "label": "AGENDA", "source": "authored-before-v6-selection", "text": "Qnd é o prox evento da minha agenda?"}
+{"family": "v6:evaluation:AGENDA:2", "label": "AGENDA", "source": "authored-before-v6-selection", "text": "Qual o próximo feriado registrado no calendário?"}
+{"family": "v6:evaluation:AGENDA:3", "label": "AGENDA", "source": "authored-before-v6-selection", "text": "Quero consultar meus compromissos na quinta"}
+{"family": "v6:evaluation:AGENDA:4", "label": "AGENDA", "source": "authored-before-v6-selection", "text": "Tem alguma coisa agendada hoje à noite?"}
+{"family": "v6:evaluation:AGENDA:5", "label": "AGENDA", "source": "authored-before-v6-selection", "text": "Quais reuniões estão previstas nesta semana?"}
+{"family": "v6:evaluation:CONTATO:0", "label": "CONTATO", "source": "authored-before-v6-selection", "text": "num da Célia"}
+{"family": "v6:evaluation:CONTATO:1", "label": "CONTATO", "source": "authored-before-v6-selection", "text": "Qual o cel do Augusto?"}
+{"family": "v6:evaluation:CONTATO:2", "label": "CONTATO", "source": "authored-before-v6-selection", "text": "Mostra o telefone da minha nora"}
+{"family": "v6:evaluation:CONTATO:3", "label": "CONTATO", "source": "authored-before-v6-selection", "text": "Me diga o número salvo do carpinteiro"}
+{"family": "v6:evaluation:CONTATO:4", "label": "CONTATO", "source": "authored-before-v6-selection", "text": "Cel da minha cunhada"}
+{"family": "v6:evaluation:CONTATO:5", "label": "CONTATO", "source": "authored-before-v6-selection", "text": "Quero o contato que guardei de Célia"}
+{"family": "v6:evaluation:CALCULO:0", "label": "CALCULO", "source": "authored-before-v6-selection", "text": "qnt dá 379 mais 82?"}
+{"family": "v6:evaluation:CALCULO:1", "label": "CALCULO", "source": "authored-before-v6-selection", "text": "Calcula 17 vezes 6,4"}
+{"family": "v6:evaluation:CALCULO:2", "label": "CALCULO", "source": "authored-before-v6-selection", "text": "Quanto é 91 dividido por 2.5?"}
+{"family": "v6:evaluation:CALCULO:3", "label": "CALCULO", "source": "authored-before-v6-selection", "text": "Faz 739-48"}
+{"family": "v6:evaluation:CALCULO:4", "label": "CALCULO", "source": "authored-before-v6-selection", "text": "Qual a soma de 14,2 e 9,8?"}
+{"family": "v6:evaluation:CALCULO:5", "label": "CALCULO", "source": "authored-before-v6-selection", "text": "Resolver a conta 48*31"}
+{"family": "v6:evaluation:TIMER:0", "label": "TIMER", "source": "authored-before-v6-selection", "text": "poe um timer de 9 min pra caminhada"}
+{"family": "v6:evaluation:TIMER:1", "label": "TIMER", "source": "authored-before-v6-selection", "text": "timer 75s"}
+{"family": "v6:evaluation:TIMER:2", "label": "TIMER", "source": "authored-before-v6-selection", "text": "Bota um temporizador de 22 seg"}
+{"family": "v6:evaluation:TIMER:3", "label": "TIMER", "source": "authored-before-v6-selection", "text": "timer 14m banho"}
+{"family": "v6:evaluation:TIMER:4", "label": "TIMER", "source": "authored-before-v6-selection", "text": "Solta uma contagem de 35 segundos"}
+{"family": "v6:evaluation:TIMER:5", "label": "TIMER", "source": "authored-before-v6-selection", "text": "Inicie um aviso para daqui quatro minutos"}
+{"family": "v6:evaluation:NOTA:0", "label": "NOTA", "source": "authored-before-v6-selection", "text": "nota: levar tecido para costurar a cortina"}
+{"family": "v6:evaluation:NOTA:1", "label": "NOTA", "source": "authored-before-v6-selection", "text": "Anotar que preciso levar a bicicleta à oficina"}
+{"family": "v6:evaluation:NOTA:2", "label": "NOTA", "source": "authored-before-v6-selection", "text": "Anota aí que não devo abrir a porta do depósito"}
+{"family": "v6:evaluation:NOTA:3", "label": "NOTA", "source": "authored-before-v6-selection", "text": "Quero uma nota rápida: comprar massa de modelar"}
+{"family": "v6:evaluation:NOTA:4", "label": "NOTA", "source": "authored-before-v6-selection", "text": "Cria uma anotação sobre pesquisar o curso de marcenaria"}
+{"family": "v6:evaluation:NOTA:5", "label": "NOTA", "source": "authored-before-v6-selection", "text": "Escreva numa nota que a encomenda chegou na terça"}
+{"family": "v6:evaluation:ABRIR_APP:0", "label": "ABRIR_APP", "source": "authored-before-v6-selection", "text": "abrir calc aqui"}
+{"family": "v6:evaluation:ABRIR_APP:1", "label": "ABRIR_APP", "source": "authored-before-v6-selection", "text": "Quero acessar as configurações do Bluetooth"}
+{"family": "v6:evaluation:ABRIR_APP:2", "label": "ABRIR_APP", "source": "authored-before-v6-selection", "text": "Abre o app de desenho"}
+{"family": "v6:evaluation:ABRIR_APP:3", "label": "ABRIR_APP", "source": "authored-before-v6-selection", "text": "Me põe na planilha do PDA"}
+{"family": "v6:evaluation:ABRIR_APP:4", "label": "ABRIR_APP", "source": "authored-before-v6-selection", "text": "Entre no diagnóstico do aparelho"}
+{"family": "v6:evaluation:ABRIR_APP:5", "label": "ABRIR_APP", "source": "authored-before-v6-selection", "text": "Pode iniciar o aplicativo de notas?"}
+{"family": "v6:evaluation:RECUSAR:0", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "salva o contato do carpinteiro 11988887777"}
+{"family": "v6:evaluation:RECUSAR:1", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Add contato Célia 11988887777"}
+{"family": "v6:evaluation:RECUSAR:2", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quero que guarde o celular do Augusto"}
+{"family": "v6:evaluation:RECUSAR:3", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Cadastre o telefone da minha nora"}
+{"family": "v6:evaluation:RECUSAR:4", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Adicione um novo contato chamado Célia"}
+{"family": "v6:evaluation:RECUSAR:5", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Mude o número do meu carpinteiro"}
+{"family": "v6:evaluation:RECUSAR:6", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Agende uma reunião na quinta às onze"}
+{"family": "v6:evaluation:RECUSAR:7", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Me lembra de pagar o aluguel no dia 12 às 7h"}
+{"family": "v6:evaluation:RECUSAR:8", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Criar lembrete sobre buscar tecido amanhã"}
+{"family": "v6:evaluation:RECUSAR:9", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Registre um evento de aniversário no calendário"}
+{"family": "v6:evaluation:RECUSAR:10", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quero adicionar consulta à minha agenda"}
+{"family": "v6:evaluation:RECUSAR:11", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Cadastre um compromisso para terça de manhã"}
+{"family": "v6:evaluation:RECUSAR:12", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Qnt tempo tem ainda na contagem?"}
+{"family": "v6:evaluation:RECUSAR:13", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Q horas o meu timer vai terminar?"}
+{"family": "v6:evaluation:RECUSAR:14", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quanto sobrou no timer que está rodando?"}
+{"family": "v6:evaluation:RECUSAR:15", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Minha contagem regressiva termina quando?"}
+{"family": "v6:evaluation:RECUSAR:16", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Me informe o estado do timer atual"}
+{"family": "v6:evaluation:RECUSAR:17", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Qual é o saldo de tempo do temporizador?"}
+{"family": "v6:evaluation:RECUSAR:18", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Abre a câmera para filmar"}
+{"family": "v6:evaluation:RECUSAR:19", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Abrir app de mensagens"}
+{"family": "v6:evaluation:RECUSAR:20", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Abre o aplicativo do Itaú"}
+{"family": "v6:evaluation:RECUSAR:21", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quero abrir o WhatsApp"}
+{"family": "v6:evaluation:RECUSAR:22", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Inicie o navegador do aparelho"}
+{"family": "v6:evaluation:RECUSAR:23", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Abre minha conta no aplicativo de banco"}
+{"family": "v6:evaluation:RECUSAR:24", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "O cel está no modo não perturbe?"}
+{"family": "v6:evaluation:RECUSAR:25", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Meu celular tá em modo silencioso?"}
+{"family": "v6:evaluation:RECUSAR:26", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Ative o silencioso até amanhã"}
+{"family": "v6:evaluation:RECUSAR:27", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Desative as notificações do celular"}
+{"family": "v6:evaluation:RECUSAR:28", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Mude o volume das notificações"}
+{"family": "v6:evaluation:RECUSAR:29", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Aumente o brilho do aparelho"}
+{"family": "v6:evaluation:RECUSAR:30", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Não mostre a bat restante"}
+{"family": "v6:evaluation:RECUSAR:31", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Não abra calc"}
+{"family": "v6:evaluation:RECUSAR:32", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Sem iniciar timer de nove minutos"}
+{"family": "v6:evaluation:RECUSAR:33", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Não anota nada sobre o tecido"}
+{"family": "v6:evaluation:RECUSAR:34", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Evite consultar o cel do Augusto"}
+{"family": "v6:evaluation:RECUSAR:35", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Desista de mostrar meus próximos eventos"}
+{"family": "v6:evaluation:RECUSAR:36", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Mostra as horas e abre a calculadora"}
+{"family": "v6:evaluation:RECUSAR:37", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Timer 75s e depois abre contatos"}
+{"family": "v6:evaluation:RECUSAR:38", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Anota buscar a cortina e exclua o contato da Célia"}
+{"family": "v6:evaluation:RECUSAR:39", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Busque o carpinteiro e envie o número"}
+{"family": "v6:evaluation:RECUSAR:40", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Consulte a bateria depois leia minha agenda"}
+{"family": "v6:evaluation:RECUSAR:41", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Calcule 379 mais 82 e desligue o aparelho"}
+{"family": "v6:evaluation:RECUSAR:42", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Coloca farinha na lista de compras"}
+{"family": "v6:evaluation:RECUSAR:43", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Anota café na minha lista"}
+{"family": "v6:evaluation:RECUSAR:44", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quero saber os itens da lista do mercado"}
+{"family": "v6:evaluation:RECUSAR:45", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Lê a lista de compras"}
+{"family": "v6:evaluation:RECUSAR:46", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Adicione leite aos itens da minha lista"}
+{"family": "v6:evaluation:RECUSAR:47", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Salve tecido na lista do supermercado"}
+{"family": "v6:evaluation:RECUSAR:48", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Onde está a praça Dom José?"}
+{"family": "v6:evaluation:RECUSAR:49", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Como chego na avenida Brasil 530?"}
+{"family": "v6:evaluation:RECUSAR:50", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Qual minha localização atual no mapa?"}
+{"family": "v6:evaluation:RECUSAR:51", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Localize o número 88 da rua do Comércio"}
+{"family": "v6:evaluation:RECUSAR:52", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Mostre o caminho até o centro"}
+{"family": "v6:evaluation:RECUSAR:53", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quanto custa uma bat de celular?"}
+{"family": "v6:evaluation:RECUSAR:54", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quem inventou os relógios de bolso?"}
+{"family": "v6:evaluation:RECUSAR:55", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quero aprender a tocar bateria"}
+{"family": "v6:evaluation:RECUSAR:56", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Explique as notas de uma partitura"}
+{"family": "v6:evaluation:RECUSAR:57", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Qual a cotação do dólar hoje?"}
+{"family": "v6:evaluation:RECUSAR:58", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quanto é o logaritmo de 379?"}
+{"family": "v6:evaluation:RECUSAR:59", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Calcule a raiz quadrada de 739"}
+{"family": "v6:evaluation:RECUSAR:60", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Resolver uma integral"}
+{"family": "v6:evaluation:RECUSAR:61", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Quanto vale o seno de 17?"}
+{"family": "v6:evaluation:RECUSAR:62", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Qual a previsão do tempo na quinta?"}
+{"family": "v6:evaluation:RECUSAR:63", "label": "RECUSAR", "source": "authored-before-v6-selection", "text": "Obrigado, depois eu volto"}

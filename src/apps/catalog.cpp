@@ -14,6 +14,9 @@ const AppInfo apps[] = {
     {AppId::Games, "Jogos", "10 jogos e puzzles pelo teclado"},
     {AppId::Map, "Mapa", "Marginal Pinheiros / vetores offline"},
     {AppId::Bluetooth, "Bluetooth", "Teclado e mouse para PC ou celular"},
+#ifdef PDA_CHAT
+    {AppId::Chat, "Assistente", "Chat local experimental"},
+#endif
 };
 const size_t appCount = sizeof(apps) / sizeof(apps[0]);
 }

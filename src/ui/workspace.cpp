@@ -349,7 +349,7 @@ void Workspace::execute(Command command, int argument) {
     case Command::ResetStopwatch: s.stopwatchMs = 0; s.stopwatchRunning = false; sys_.changed(true); render(); break;
     case Command::SetTimer: editor(Form::Timer, false); break;
     case Command::ToggleTimer:
-        if (s.timerRunning) { s.timerRunning = false; s.timerDeadline = 0; sys_.changed(true); }
+        if (s.timerRunning) sys_.pauseTimer();
         else sys_.startTimer(s.timerMs);
         render(); break;
     case Command::ResetTimer: sys_.startTimer(0); render(); break;
@@ -361,7 +361,11 @@ void Workspace::execute(Command command, int argument) {
     case Command::Export: {
         std::string result; sys_.save(); sys_.exportData(result); message(result.empty() ? "Exportação indisponível." : result); break;
     }
-    case Command::Sound: s.preferences.sound = !s.preferences.sound; sys_.changed(true); render(); break;
+    case Command::Sound: s.preferences.sound = !s.preferences.sound; sys_.configure(); sys_.changed(true); render(); break;
+    case Command::TestSound:
+        if(s.preferences.sound) sys_.notify("Teste de som.");
+        else message("Som desligado. Ative Som e repita o teste.");
+        break;
     case Command::Composition: s.preferences.composeSymbols = !s.preferences.composeSymbols; sys_.changed(true); render(); break;
     case Command::SaveNow: message(sys_.save() ? "Dados salvos e verificados na flash." : sys_.store.error()); break;
     case Command::Help: message("WASD: mover. Enter: editar (WASD vira texto). Fórmulas: =A1+B1, =SUM(A1:A5), AVG, MIN, MAX, COUNT. Separador ; e decimal com ponto. Use Símbolos para = e acentos."); break;

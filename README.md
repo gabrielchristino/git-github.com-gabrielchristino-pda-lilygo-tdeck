@@ -7,6 +7,7 @@ implementa os aplicativos pessoais e persistência na flash interna.
 
 | Aplicativo | Implementado |
 | --- | --- |
+| Assistente | Chat offline, notas, contatos, agenda, timers, calculadora e cálculos de calendário |
 | Agenda | Criar, editar, buscar, excluir, início/fim e lembretes enquanto ligado |
 | Calendário | Mês, navegação em quatro direções, marcação de dias com eventos, vista diária |
 | Notas | Lista, busca, título, texto UTF-8 e salvamento automático |
@@ -33,11 +34,20 @@ neutro, separadores finos e seleção verde preenchida, sem animação de foco.
 [Guia de uso](docs/GUIA.md) · [Persistência](docs/PERSISTENCIA.md) ·
 [Validação](VALIDACAO.md) · [Arquitetura](docs/ARQUITETURA.md)
 
-[Uso de memória](docs/MEMORIA.md): compactação sem perda dos dados do mapa e
-configuração LVGL restrita aos componentes utilizados. Aplicativo medido em
-5.221.377 bytes (79,7% da partição), com 1.332.223 bytes livres, incluindo
-o gerenciador de destinos Bluetooth.
-[Validação no T-Deck](docs/VALIDACAO-MEMORIA.md): instalação, buscas e persistência por USB.
+[Uso de memória](docs/MEMORIA.md) e [partições sem OTA](docs/PARTICOES.md):
+16 MB de flash, aproximadamente 8 MiB de PSRAM e 12,5 MiB reservados ao firmware.
+O aplicativo atual usa 5.448.133 bytes (41,6% dessa partição).
+
+[Assistente offline](docs/CHAT.md): incluído no firmware padrão `tdeck`, com
+consultas, cadastros e alterações pelos serviços locais do PDA.
+[Comandos](docs/CHAT-COMANDOS.md) · [Cálculos de calendário](docs/CHAT-CALENDARIO.md) ·
+[Áudio e alertas](docs/AUDIO.md).
+
+[Modelo e treinamento](docs/IA.md): arquitetura, dados atuais, reprodução,
+avaliação e como acrescentar exemplos ou funções.
+[Aprendizados](docs/APRENDIZADOS.md): decisões, erros encontrados e limites
+observados no aparelho. [Ferramentas](tools/README.md) reúne os comandos mantidos.
+[Validação no T-Deck](docs/VALIDACAO-MEMORIA.md): buscas e persistência por USB.
 
 [Jogos e controles](docs/JOGOS.md): funcionam por teclado, sem depender do trackball.
 [Mapa vetorial e controles](docs/MAPA.md): funciona sem imagens, internet ou SD.
@@ -130,8 +140,17 @@ pio run -e tdeck
 ```
 
 A atualização grava **somente o aplicativo em 0x10000**, preservando o mapa de
-partições, bootloader e arquivos do PDA. Uma instalação inicial completa requer
-o mapa de partições da placa; não use esse comando para migrar outro layout.
+partições, bootloader e arquivos do PDA. O script confere primeiro o layout
+instalado e exige salvamento confirmado. Para migrar o layout antigo com dois
+slots de firmware, use uma vez:
+
+```powershell
+python -m pip install --target .pio-tools/flash -r tools/requirements-flash.txt
+./tools/flash.ps1 -Port COM4 -MigratePartitions
+```
+
+A migração faz backup completo e verifica as áreas preservadas antes de reiniciar.
+Consulte [partições](docs/PARTICOES.md) para recuperação e limitações.
 
 Se `pio` não estiver no PATH, use o Python do ambiente onde o PlatformIO foi instalado:
 

@@ -23,6 +23,7 @@ const char *appIcon(AppId id) {
     case AppId::Games: return LV_SYMBOL_PLAY;
     case AppId::Map: return LV_SYMBOL_GPS;
     case AppId::Bluetooth: return LV_SYMBOL_BLUETOOTH;
+    case AppId::Chat: return LV_SYMBOL_EDIT;
     }
     return LV_SYMBOL_FILE;
 }
@@ -84,6 +85,7 @@ void Shell::select(int index) {
     }
 }
 void Shell::rebuildList() {
+    lv_obj_add_flag(body_,LV_OBJ_FLAG_SCROLLABLE);
     listCount_ = nullptr;
     lv_group_remove_all_objs(focus_); lv_obj_clean(body_); lv_obj_scroll_to_y(body_, 0, LV_ANIM_OFF);
     lv_obj_set_scrollbar_mode(body_, LV_SCROLLBAR_MODE_AUTO); visibleCount_ = 0;
@@ -116,6 +118,9 @@ void Shell::rebuildList() {
     lv_obj_update_layout(body_); select(selected_); updateFooter();
 }
 void Shell::showHome() {
+#ifdef PDA_CHAT
+    leaveChat();
+#endif
     if (remote_.enable) remote_.enable(false);
     remoteStatus_ = nullptr;
     remotePanel_ = nullptr; remoteMask_ = 0; remoteRebuild_ = false;
@@ -127,12 +132,25 @@ void Shell::showHome() {
     rebuildList();
 }
 void Shell::showApp(const AppInfo &app) {
+#ifdef PDA_CHAT
+    leaveChat();
+#endif
     if (remote_.enable && current_ && current_->id == AppId::Bluetooth) remote_.enable(false);
     remoteStatus_ = nullptr;
     listCount_ = nullptr;
     current_ = &app; diagnostic_ = nullptr; lv_label_set_text(title_, app.name);
+    lv_obj_add_flag(body_,LV_OBJ_FLAG_SCROLLABLE);
     mapLayout(app.id==AppId::Map || (app.id==AppId::Games && system_->state.session.app==int8_t(app.id) && system_->state.session.document>=1 && system_->state.session.document<=games::count));
     auto &session = system_->state.session;
+#ifdef PDA_CHAT
+    if (app.id == AppId::Chat) {
+        workspace_->leave(); lv_group_remove_all_objs(focus_); lv_obj_clean(body_);
+        // Chat is transient. Never persist app=13 or chat text into legacy saves.
+        if (!session.home) { session.home = true; system_->changed(true); }
+        buildChat();
+    }
+    else
+#endif
     if (app.id == AppId::Bluetooth) {
         workspace_->leave(); lv_group_remove_all_objs(focus_); lv_obj_clean(body_);
         lv_obj_scroll_to_y(body_, 0, LV_ANIM_OFF);
@@ -202,6 +220,13 @@ void Shell::handle(const InputEvent &input) {
     ++events_;
     // Notifications consume input before an app can forward it to a remote host.
     if (alert_) { if (event.action == Action::Activate || event.action == Action::Home || event.action == Action::Backspace) system_->dismissNotification(); return; }
+#ifdef PDA_CHAT
+    if (current_ && current_->id == AppId::Chat) {
+        if (event.action == Action::Home) pendingHome_ = true;
+        else handleChat(event);
+        return;
+    }
+#endif
     if (current_ && current_->id == AppId::Bluetooth) {
         if (event.action == Action::Home && !event.character) pendingHome_ = true;
         else if (remoteManaging_) handleRemotePeers(event);
@@ -309,6 +334,10 @@ void Shell::tick() {
     if (strcmp(lv_label_get_text(time_), clock)) lv_label_set_text(time_, clock);
     if (pendingHome_) { pendingHome_ = false; pendingApp_ = nullptr; search_[0] = 0; showHome(); system_->save(); }
     else if (pendingApp_) { const AppInfo *app = pendingApp_; pendingApp_ = nullptr; showApp(*app); }
+#ifdef PDA_CHAT
+    if (current_ && current_->id == AppId::Chat) tickChat();
+    else
+#endif
     if (current_ && current_->id == AppId::Bluetooth) {
         tickRemotePeers();
         if (remoteRebuild_) { if (remoteManaging_) buildRemotePeers(); else buildRemotePanel(); }

@@ -28,9 +28,11 @@ class FakePlatform : public Platform {
 public:
     int64_t epoch = 0;
     int alarms = 0;
+    int stops = 0;
     int64_t utc() const override { return epoch; }
     bool setUtc(int64_t value) override { epoch = value; return true; }
     void alert() override { ++alarms; }
+    void stopAlert() override { ++stops; }
 };
 static void equals(const Value &v, double number) { assert(v.kind == ValueKind::Number); assert(std::abs(v.number - number) < 1e-8); }
 static void expressionTests() {
@@ -138,5 +140,18 @@ static void dateAndTimerTests() {
 }
 int main() {
     expressionTests(); persistenceTests(); dateAndTimerTests();
+    {
+        FakePlatform platform; MemoryStorage memory; System sys;sys.begin(&memory,&platform,0);
+        sys.startTimer(5);sys.tick(5);assert(platform.alarms==1&&!sys.notification().empty()&&sys.timerAlertActive());
+        sys.tick(1504);assert(platform.alarms==1);
+        sys.tick(1505);sys.tick(3005);assert(platform.alarms==3&&sys.timerAlertActive());
+        sys.dismissNotification();assert(platform.stops==1&&!sys.timerAlertActive());
+        sys.tick(10005);assert(platform.alarms==3);
+        sys.dismissNotification();sys.state.preferences.sound=false;sys.configure();
+        sys.startTimer(5);sys.tick(10010);sys.tick(13010);assert(platform.alarms==3&&!sys.notification().empty()&&sys.timerAlertActive());
+        sys.dismissNotification();sys.state.preferences.sound=true;sys.configure();
+        sys.notify("Teste de som.");assert(platform.alarms==4);
+        sys.tick(20000);assert(platform.alarms==4&&!sys.timerAlertActive()); // ordinary alerts do not repeat
+    }
     puts("core: formulas, cycles, limits, UTF-8, CRC, interrupted writes, recovery, dates, timers and autosave OK");
 }

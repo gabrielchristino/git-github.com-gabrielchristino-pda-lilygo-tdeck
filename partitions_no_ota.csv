@@ -1,0 +1,7 @@
+# Single factory application; preserve the original NVS, LittleFS and coredump.
+# 0xe000..0xffff remains unused (old OTA metadata), avoiding an NVS resize.
+# Name,   Type, SubType, Offset,   Size,     Flags
+nvs,      data, nvs,     0x9000,   0x5000,
+factory,  app,  factory, 0x10000,  0xc80000,
+spiffs,   data, spiffs,  0xc90000, 0x360000,
+coredump, data, coredump,0xff0000, 0x10000,

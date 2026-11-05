@@ -41,9 +41,10 @@ A Cobrinha salva corpo, fruta, direção e comando pendente, mas sua simulação
 retoma pausada ao reabrir a tela. Sair para o menu/início ou receber um lembrete
 pausa a partida antes do próximo passo. Não há avanço enquanto outro app está aberto.
 
-A flash usa o mapa de partições já instalado na base 0.1. A partição `spiffs`
-em `0xc90000`, tamanho `0x360000`, é montada como LittleFS. Não há mudança de
-partições nem dependência de NVS para documentos nesta versão.
+A flash usa o [layout sem OTA](PARTICOES.md), com uma única partição de firmware.
+A partição `spiffs` em `0xc90000`, tamanho `0x360000`, é montada como LittleFS;
+seu endereço e tamanho são os mesmos da base 0.1. A migração não move nem
+redimensiona os documentos. Não há dependência de NVS para documentos.
 
 ## Duas cópias
 
@@ -85,7 +86,9 @@ circuito da bateria continuam responsáveis pela alimentação física.
 
 ## Atualizações
 
-`tools/flash.ps1` grava apenas o app em `0x10000`. Não apaga a partição de dados,
-a tabela de partições, o bootloader nem os arquivos salvos. Mudanças futuras de
+`tools/flash.ps1` confere o layout e grava apenas o app em `0x10000`. Não apaga
+a partição de dados, a tabela, o bootloader nem os arquivos salvos. A opção
+explícita `-MigratePartitions` também grava a tabela, após backup completo e
+somente se reconhecer o layout antigo ou o novo. Mudanças futuras de
 schema precisam de migração explícita; não reduzir validações para montar dados
 incompatíveis. O limite de snapshot é 1,4 MB para permitir duas cópias na partição.

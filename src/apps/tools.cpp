@@ -137,10 +137,11 @@ void Workspace::settings() {
     lv_obj_update_layout(text); const int y = lv_obj_get_height(text) + 8;
     button(body_, "Tela, economia e fuso", 0, y, 290, Command::EditSettings);
     button(body_, std::string("Som: ") + (sys_.state.preferences.sound ? "ligado" : "desligado"), 0, y + 35, 290, Command::Sound);
-    button(body_, std::string("Composição _- para =: ") + (sys_.state.preferences.composeSymbols ? "ligada" : "desligada"), 0, y + 70, 290, Command::Composition);
-    button(body_, "Salvar agora", 0, y + 105, 290, Command::SaveNow);
-    button(body_, "Exportar cópia para SD", 0, y + 140, 290, Command::Export);
-    if (!sys_.store.ready()) button(body_, "Preparar memória (confirmar)", 0, y + 175, 290, Command::Initialize);
-    else label(body_, "Memória pronta. Atualizar o firmware preserva os dados.", 0, y + 175, 290);
+    button(body_, "Testar som", 0, y + 70, 290, Command::TestSound);
+    button(body_, std::string("Composição _- para =: ") + (sys_.state.preferences.composeSymbols ? "ligada" : "desligada"), 0, y + 105, 290, Command::Composition);
+    button(body_, "Salvar agora", 0, y + 140, 290, Command::SaveNow);
+    button(body_, "Exportar cópia para SD", 0, y + 175, 290, Command::Export);
+    if (!sys_.store.ready()) button(body_, "Preparar memória (confirmar)", 0, y + 210, 290, Command::Initialize);
+    else label(body_, "Memória pronta. Atualizar o firmware preserva os dados.", 0, y + 210, 290);
 }
 }

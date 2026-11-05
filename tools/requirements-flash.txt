@@ -1,0 +1,3 @@
+# Isolated tooling for native USB backup/migration; does not change PlatformIO.
+esptool==4.8.1
+intelhex==2.3.0

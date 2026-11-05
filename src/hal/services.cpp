@@ -1,4 +1,5 @@
 #include "services.h"
+#include "audio.h"
 #include "pda/datetime.h"
 #include "pda/expression.h"
 #include <Arduino.h>
@@ -6,7 +7,6 @@
 #include <SD.h>
 #include <SPI.h>
 #include <esp_partition.h>
-#include <driver/i2s.h>
 #include <sys/time.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -99,28 +99,12 @@ class DevicePlatform : public Platform {
 public:
     int64_t utc() const override { return int64_t(time(nullptr)); }
     bool setUtc(int64_t epoch) override { timeval t; t.tv_sec = time_t(epoch); t.tv_usec = 0; return settimeofday(&t, nullptr) == 0; }
-    void configure(const Preferences &p) override { configuration = p; brightness(p.brightness); lastActivity = millis(); screenOff = false; }
+    void configure(const Preferences &p) override { configuration = p; brightness(p.brightness); lastActivity = millis(); screenOff = false; if(!p.sound) audioStop(); }
     void alert() override {
-        // Short, bounded tone. No microphone/MCLK routing to GPIO0 (ball click).
-        static bool initialized = false;
-        if (!initialized) {
-            i2s_config_t config = {};
-            config.mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_TX);
-            config.sample_rate = 16000; config.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;
-            config.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT; config.communication_format = I2S_COMM_FORMAT_STAND_I2S;
-            config.intr_alloc_flags = 0; config.dma_buf_count = 4; config.dma_buf_len = 128;
-            config.use_apll = false; config.tx_desc_auto_clear = true;
-            if (i2s_driver_install(I2S_NUM_0, &config, 0, nullptr) != ESP_OK) return;
-            i2s_pin_config_t pins = {}; pins.bck_io_num = 7; pins.ws_io_num = 5; pins.data_out_num = 6;
-            pins.data_in_num = I2S_PIN_NO_CHANGE; pins.mck_io_num = I2S_PIN_NO_CHANGE;
-            if (i2s_set_pin(I2S_NUM_0, &pins) != ESP_OK) { i2s_driver_uninstall(I2S_NUM_0); return; }
-            initialized = true;
-        }
-        int16_t samples[640];
-        for (size_t i = 0; i < 640; ++i) samples[i] = (i / 8) % 2 ? 1500 : -1500;
-        size_t written = 0; i2s_write(I2S_NUM_0, samples, sizeof(samples), &written, pdMS_TO_TICKS(60));
+        if(!audioAlert()) Serial.printf("AUDIO ERROR=%d\n",audioStats().error);
         activity();
     }
+    void stopAlert() override { audioStop(); }
     bool exportData(const State &s, std::string &message) override {
         if (!SD.begin(39, SPI, 800000U)) { message = "Cartao SD nao encontrado."; return false; }
         SD.mkdir("/pda-export");
@@ -172,6 +156,7 @@ Platform &platform() { return devicePlatform; }
 void activity() { lastActivity = millis(); screenOff = false; brightness(configuration.brightness); }
 bool wakeScreen() { const bool wasOff = screenOff; activity(); return wasOff; }
 void powerTick() {
+    audioTick();
     const uint32_t elapsed = uint32_t(millis() - lastActivity) / 1000;
     if (configuration.offSeconds && elapsed >= configuration.offSeconds) { brightness(0); screenOff = true; }
     else if (configuration.dimSeconds && elapsed >= configuration.dimSeconds) brightness(std::min<uint8_t>(3, configuration.brightness));

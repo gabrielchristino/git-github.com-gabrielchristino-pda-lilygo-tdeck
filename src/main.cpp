@@ -3,10 +3,16 @@
 #include <esp_heap_caps.h>
 #include "hal/tdeck.h"
 #include "hal/services.h"
+#include "hal/audio.h"
 #include "hal/gps.h"
 #include "hal/bluetooth.h"
+#include "hal/memory_probe.h"
+#ifdef PDA_CHAT
+#include "hal/chat_model.h"
+#endif
 #include "pda/shell.h"
 #include "pda/datetime.h"
+#include "pda/calendar_math.h"
 #include "pda/map.h"
 static pda::System systemState;
 static pda::Shell shell;
@@ -50,6 +56,52 @@ static void serialService() {
         const char c = Serial.read();
         if (c == '\n' || c == '\r') {
             if (line == "PDA STATUS") status();
+#ifdef PDA_CHAT
+            else if (line.startsWith("PDA PT RUN ")) pda::hal::ptClassify(line.c_str()+11);
+            else if (line == "PDA CHAT STATUS") {
+                Serial.printf("CHAT ACTIVE=%d MESSAGES=%u BYTES=%u LABEL=%d\n",shell.chatActive(),
+                    unsigned(shell.chatMessageCount()),unsigned(shell.chatDraftBytes()),shell.chatLastLabel());
+                Serial.flush(); Serial.println(); Serial.flush();
+            }
+#endif
+            else if (line.startsWith("PDA CALENDAR ")) {
+                const bool valid=systemState.clockValid();const auto zone=systemState.state.preferences.timezoneMinutes;
+                Serial.printf("CALENDAR CLOCK=%d TODAY=%s ZONE_MIN=%d\n",valid,
+                    valid?pda::formatCivil(systemState.utc(),zone,false).c_str():"UNSET",zone);
+                const auto reply=pda::calendarReply(line.c_str()+13,valid,valid?pda::fromUtc(systemState.utc(),zone):pda::CivilTime());
+                Serial.print("CALENDAR REPLY=");Serial.println(reply.empty()?"UNRECOGNIZED":reply.c_str());
+                Serial.println("CALENDAR DONE");Serial.flush();Serial.println();Serial.flush();
+            }
+            else if (line == "PDA AUDIO STATUS") {
+                const auto a=pda::hal::audioStats();
+                Serial.printf("AUDIO ENABLED=%d INIT=%d PLAYING=%d ERROR=%d REQUESTS=%lu COMPLETED=%lu BYTES=%lu TIMER_RUNNING=%d TIMER_MS=%llu NOTIFY=%d LATCHED=%d\n",
+                    systemState.state.preferences.sound,a.initialized,a.playing,a.error,(unsigned long)a.requests,
+                    (unsigned long)a.completed,(unsigned long)a.bytes,systemState.state.timerRunning,
+                    (unsigned long long)systemState.state.timerMs,!systemState.notification().empty(),systemState.timerAlertActive());
+                Serial.flush();Serial.println();Serial.flush();
+            } else if(line=="PDA AUDIO TEST") {
+                if(systemState.state.preferences.sound) {systemState.notify("Teste de som.");Serial.println("AUDIO TEST REQUESTED");}
+                else Serial.println("AUDIO TEST MUTED");
+                Serial.flush();Serial.println();Serial.flush();
+            }
+            else if (line == "PDA MEM") pda::hal::memoryReport();
+            else if (line == "PDA MEM RESET") {
+                pda::hal::memoryResetWindow(); Serial.println("MEM RESET OK");
+            } else if (line == "PDA MEM RELEASE") {
+                pda::hal::memoryRelease(); Serial.println("MEM RELEASE OK");
+            } else if (line == "PDA MEM VERIFY") pda::hal::memoryVerify();
+            else if (line == "PDA MEM CHECK") pda::hal::memoryCheck();
+            else if (line == "PDA MEM SAVE") {
+                const uint32_t started = micros();
+                const bool saved = systemState.save();
+                Serial.printf("MEM SAVE OK=%d US=%u\n", saved, unsigned(micros() - started));
+                pda::hal::memoryReport();
+            } else if (line.startsWith("PDA MEM RESERVE ")) {
+                char *end = nullptr;
+                const unsigned long bytes = strtoul(line.c_str() + 16, &end, 10);
+                const bool valid = end != line.c_str() + 16 && *end == '\0' && bytes <= UINT32_MAX;
+                Serial.println(valid && pda::hal::memoryReserve(uint32_t(bytes)) ? "MEM RESERVE OK" : "MEM RESERVE ERROR");
+            }
             else if(line=="PDA BT LOG") pda::hal::bluetoothReport();
             else if(line=="PDA BT PEERS") {
                 const auto remote=pda::hal::bluetoothRemote();
@@ -123,13 +175,18 @@ void setup() {
         const auto result = systemState.begin(&pda::hal::storage(), &pda::hal::platform(), millis());
         if (result == pda::LoadResult::Fresh) systemState.changed(true);
         shell.setBluetoothRemote(pda::hal::bluetoothRemote());
+#ifdef PDA_CHAT
+        shell.setChatClassifier(pda::hal::chatClassify);
+#endif
         shell.begin(pda::hal::touchAvailable(), systemState);
         shell.setBatteryStats(pda::hal::readBattery());
         Serial.printf("PDA: PSRAM=%u free=%u storage=%s\n", ESP.getPsramSize(), ESP.getFreePsram(), systemState.store.description());
+        pda::hal::memoryResetWindow();
     } else Serial.println("PDA: inicializacao interrompida");
 }
 void loop() {
     if (ready) {
+        pda::hal::memoryProbeTick();
         pda::hal::bluetoothPoll();
         pda::hal::gpsPoll();
         systemState.tick(millis());

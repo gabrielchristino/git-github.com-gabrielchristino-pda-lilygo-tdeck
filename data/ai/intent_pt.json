@@ -1,0 +1,285 @@
+{
+  "kind": "Portuguese intent network plus explicit short-input normalization and capability validation",
+  "labels": [
+    "RECUSAR",
+    "BATERIA",
+    "HORA",
+    "AGENDA",
+    "CONTATO",
+    "CALCULO",
+    "TIMER",
+    "NOTA",
+    "ABRIR_APP"
+  ],
+  "training_cases": 22132,
+  "calibration_cases": 2152,
+  "heldout_cases": 112,
+  "training_dataset_sha256": "128d55ee06d60978a90c636d9af5e3d9db695974454002b56f88aadcededb858",
+  "evaluation_sha256": "816db253cd5b85f1fa9fa3ed0081ae346d120ab1bad14001946cd2d09c05354a",
+  "calibration_dataset_sha256": "d4828ecb84bd05202630eb241d4918148534c27780dcf711047dc3dc0921b3b2",
+  "checkpoint_selection": "coverage",
+  "feature_profile": 5,
+  "evaluation_deferred": true,
+  "learning_rate": 0.005,
+  "target_calibration_precision": 0.99,
+  "per_class_gates": false,
+  "source_dataset_files": {
+    "train.jsonl": {
+      "cases": 22132,
+      "sha256": "128d55ee06d60978a90c636d9af5e3d9db695974454002b56f88aadcededb858",
+      "per_label": {
+        "RECUSAR": 14529,
+        "BATERIA": 493,
+        "HORA": 488,
+        "AGENDA": 988,
+        "CONTATO": 1586,
+        "CALCULO": 466,
+        "TIMER": 1283,
+        "NOTA": 1209,
+        "ABRIR_APP": 1090
+      }
+    },
+    "calibration.jsonl": {
+      "cases": 2152,
+      "sha256": "d4828ecb84bd05202630eb241d4918148534c27780dcf711047dc3dc0921b3b2",
+      "per_label": {
+        "RECUSAR": 737,
+        "CONTATO": 287,
+        "BATERIA": 96,
+        "HORA": 95,
+        "AGENDA": 211,
+        "CALCULO": 92,
+        "TIMER": 232,
+        "NOTA": 194,
+        "ABRIR_APP": 208
+      }
+    },
+    "evaluation.jsonl": {
+      "cases": 112,
+      "sha256": "816db253cd5b85f1fa9fa3ed0081ae346d120ab1bad14001946cd2d09c05354a",
+      "per_label": {
+        "BATERIA": 6,
+        "HORA": 6,
+        "AGENDA": 6,
+        "CONTATO": 6,
+        "CALCULO": 6,
+        "TIMER": 6,
+        "NOTA": 6,
+        "ABRIR_APP": 6,
+        "RECUSAR": 64
+      }
+    }
+  },
+  "seeds": [
+    {
+      "seed": 7,
+      "epochs_run": 26,
+      "selected_epoch": 1,
+      "validation_loss": 0.3766975402832031,
+      "calibration_accepted_correct": 769
+    },
+    {
+      "seed": 19,
+      "epochs_run": 27,
+      "selected_epoch": 2,
+      "validation_loss": 0.35338205099105835,
+      "calibration_accepted_correct": 640
+    },
+    {
+      "seed": 41,
+      "epochs_run": 47,
+      "selected_epoch": 22,
+      "validation_loss": 0.4727305471897125,
+      "calibration_accepted_correct": 959
+    }
+  ],
+  "selected_seed": 41,
+  "selected_epoch": 22,
+  "threshold": 0.99,
+  "margin": 0.5,
+  "parameters": 33097,
+  "model_bytes": 132420,
+  "model_sha256": "828bf12fe7bffc840b2659ad431861354bcc0625af8ab6229c57446a543d0064",
+  "elapsed_seconds": 47.207,
+  "calibration": {
+    "cases": 2152,
+    "known": 1415,
+    "unknown": 737,
+    "correct": 1696,
+    "known_correct": 959,
+    "known_rejected": 451,
+    "wrong_accepted": 5,
+    "unknown_false_accept": 0,
+    "accepted": 964,
+    "accepted_precision": 0.9948132780082988,
+    "known_coverage": 0.67773851590106
+  },
+  "version": 6,
+  "selection_protocol": "Maximum accepted correct calibration cases at >=0.99 empirical precision; all evaluations deferred until weights frozen",
+  "guaranteed_reliability": false,
+  "evaluations": {
+    "frozen_evaluation": {
+      "metrics": {
+        "cases": 112,
+        "known": 48,
+        "unknown": 64,
+        "correct": 99,
+        "known_correct": 37,
+        "known_rejected": 11,
+        "wrong_accepted": 2,
+        "unknown_false_accept": 2,
+        "accepted": 39,
+        "accepted_precision": 0.9487179487179487,
+        "known_coverage": 0.7708333333333334
+      },
+      "raw_correct": 98,
+      "per_label": {
+        "RECUSAR": {
+          "cases": 64,
+          "correct": 62
+        },
+        "BATERIA": {
+          "cases": 6,
+          "correct": 5
+        },
+        "HORA": {
+          "cases": 6,
+          "correct": 3
+        },
+        "AGENDA": {
+          "cases": 6,
+          "correct": 2
+        },
+        "CONTATO": {
+          "cases": 6,
+          "correct": 4
+        },
+        "CALCULO": {
+          "cases": 6,
+          "correct": 6
+        },
+        "TIMER": {
+          "cases": 6,
+          "correct": 6
+        },
+        "NOTA": {
+          "cases": 6,
+          "correct": 6
+        },
+        "ABRIR_APP": {
+          "cases": 6,
+          "correct": 5
+        }
+      }
+    },
+    "known_user_regression": {
+      "metrics": {
+        "cases": 34,
+        "known": 22,
+        "unknown": 12,
+        "correct": 33,
+        "known_correct": 21,
+        "known_rejected": 1,
+        "wrong_accepted": 0,
+        "unknown_false_accept": 0,
+        "accepted": 21,
+        "accepted_precision": 1.0,
+        "known_coverage": 0.9545454545454546
+      },
+      "raw_correct": 32,
+      "per_label": {
+        "RECUSAR": {
+          "cases": 12,
+          "correct": 12
+        },
+        "BATERIA": {
+          "cases": 2,
+          "correct": 2
+        },
+        "HORA": {
+          "cases": 2,
+          "correct": 2
+        },
+        "AGENDA": {
+          "cases": 4,
+          "correct": 4
+        },
+        "CONTATO": {
+          "cases": 2,
+          "correct": 1
+        },
+        "CALCULO": {
+          "cases": 0,
+          "correct": 0
+        },
+        "TIMER": {
+          "cases": 4,
+          "correct": 4
+        },
+        "NOTA": {
+          "cases": 4,
+          "correct": 4
+        },
+        "ABRIR_APP": {
+          "cases": 4,
+          "correct": 4
+        }
+      }
+    }
+  },
+  "reproducibility": {
+    "dataset_files_identical": true,
+    "all_seeds_repeated": [
+      7,
+      19,
+      41
+    ],
+    "selected_seed": 41,
+    "selected_epoch": 22,
+    "weights_byte_identical": true,
+    "model_sha256": "828bf12fe7bffc840b2659ad431861354bcc0625af8ab6229c57446a543d0064",
+    "scope": "Current canonical training tools, same CPU environment: PyTorch 2.5.1+cpu, NumPy 1.26.4"
+  },
+  "dataset": "data/ai/dataset",
+  "scope": "Neural intent hints only. Argument parsing, calendar arithmetic and action execution are separate validated code.",
+  "runtime_spec_sha256": {
+    "tools/ai/text_features.py": "b78bf885e5c07a582c50ec881148a828c6d50782cbca7e30d772bd6e493161f6",
+    "tools/ai/policy.py": "8977fa81bc624d840bd5f0ad506c0a101db289ba98e5e893d9d2f34f0266c268",
+    "src/core/intent_pt.cpp": "5de8fd441f8e9f9b10d17c937e57ad9c804c91abd3a2d65de49da4163fed1666",
+    "include/pda/intent_pt.h": "878e43083e6774eb7a7a84544b242a777e1e775b8e07d3f556ba33bc868b1b97",
+    "src/core/intent_pt_folds.inc": "a08fe4b593edc550403a0589f56cad4229268dcb3abf4257ec3a7d5d78edd024",
+    "src/core/intent_pt_short.inc": "06192402d8de320be2a9a2dd8db5c1ed33f75e93ef20653f82a82714e95552fc"
+  },
+  "maintenance": {
+    "change": "Canonicalized current-only sources; weights and dataset bytes unchanged",
+    "original_model_sha256": "828bf12fe7bffc840b2659ad431861354bcc0625af8ab6229c57446a543d0064",
+    "original_training_spec_sha256": {
+      "tools/ai/pt_features_v6.py": "19b7917e08eafc68ef730415e29714ec7313ba4947416ca6bd579b58f75983ab",
+      "tools/ai/pt_policy_v6.py": "42ca6c4b539f20d473697c05f29969a89978fa80d9cdc7ce3551e5e828569d49",
+      "src/core/intent_pt_short.inc": "06192402d8de320be2a9a2dd8db5c1ed33f75e93ef20653f82a82714e95552fc"
+    },
+    "equivalence_cases": 24396,
+    "evidence": "Exact feature/guard hashes on train, calibration and evaluation before/after refactor; 112/112 C++ label parity",
+    "feature_guard_hashes": {
+      "train": {
+        "cases": 22132,
+        "feature_sha256": "9281bbfbbc6f55fe638e8ba36802017ea3f09d8381e3a1edbeb7aea54c0c206c",
+        "policy_sha256": "a5b9403b7535a00dc790d9d077acfe7149b6a99a82bae9c36471cdb678d72b3a"
+      },
+      "calibration": {
+        "cases": 2152,
+        "feature_sha256": "234f039c4c682d024ff1c707d2556083b36691c78136e4a3067eee1b0ffb658a",
+        "policy_sha256": "e0a434895ae2b8736a587f090bca9b43be29041b04d9a6dd038ff1f5a2ae6193"
+      },
+      "evaluation": {
+        "cases": 112,
+        "feature_sha256": "4d3b1b74762b74e2e90bc6b519e6a1b0f6e6c5cb21e47577bec977d97e42d157",
+        "policy_sha256": "2e1b8e732234ce25155307da0415fef84b608afe9182c453a5396a4ac8bdf3de"
+      }
+    },
+    "original_export_dataset_sha256": {
+      "training_dataset_sha256": "cec9a6e5db660e55543eeef765f3dcdeed0bde21fc5c54b7749ed997717be686",
+      "calibration_dataset_sha256": "72dd00b41b325c5c0cea71f0978cec119412c442d48d647b7b260834e259cd0a"
+    }
+  }
+}
